@@ -54,8 +54,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const budget = form.querySelector("[name='budget']");
     if (packageBudgets[requestedPackage]) budget.value = packageBudgets[requestedPackage];
   }
-  form?.addEventListener("submit", (event) => {
+  form?.addEventListener("submit", async (event) => {
     event.preventDefault();
+    const status = form.querySelector(".form-status");
+    const submitButton = form.querySelector("button[type='submit']");
     let valid = true;
     form.querySelectorAll("[required]").forEach((field) => {
       const error = field.parentElement.querySelector(".field-error");
@@ -73,10 +75,26 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!valid) return;
 
     const data = new FormData(form);
-    const subject = encodeURIComponent(`Project inquiry from ${data.get("name")}`);
-    const body = encodeURIComponent(`Name: ${data.get("name")}\nEmail: ${data.get("email")}\nCompany: ${data.get("company") || "Not provided"}\nBudget: ${data.get("budget")}\n\nProject:\n${data.get("message")}`);
-    document.querySelector(".form-status").textContent = "Opening your email client...";
-    window.location.href = `mailto:hello@placeholder.com?subject=${subject}&body=${body}`;
+    data.set("_subject", `New project inquiry from ${data.get("name")}`);
+    status.textContent = "Sending your project brief...";
+    submitButton.disabled = true;
+
+    try {
+      const response = await fetch(form.action, {
+        method: "POST",
+        body: data,
+        headers: { Accept: "application/json" }
+      });
+
+      if (!response.ok) throw new Error("Form submission failed");
+
+      form.reset();
+      status.textContent = "Brief sent. Please check your email for confirmation.";
+    } catch (error) {
+      status.textContent = "Could not send automatically. Email us at aiclub.heads.vsa@gmail.com.";
+    } finally {
+      submitButton.disabled = false;
+    }
   });
 
   initWebGL();
@@ -109,11 +127,18 @@ function initAmbientWebGL() {
   document.body.prepend(canvas);
 
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const compactDevice = window.matchMedia("(max-width: 760px)").matches;
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(42, 1, .1, 100);
   camera.position.z = 9;
-  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: "low-power" });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.35));
+  let renderer;
+  try {
+    renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: !compactDevice, powerPreference: "low-power" });
+  } catch (error) {
+    canvas.remove();
+    return;
+  }
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, compactDevice ? 1.1 : 1.35));
 
   const sculpture = new THREE.Group();
   const shell = new THREE.Mesh(
@@ -125,9 +150,33 @@ function initAmbientWebGL() {
     new THREE.MeshBasicMaterial({ color: 0xb8f5dc, wireframe: true, transparent: true, opacity: .13 })
   );
   sculpture.add(shell, knot);
+
+  const teamOrbit = new THREE.Group();
+  const teamNodeGeometry = new THREE.SphereGeometry(compactDevice ? .11 : .14, 10, 8);
+  const teamNodes = [0xff6b4a, 0xb8f5dc, 0xc6b7ff].map((color) => {
+    const node = new THREE.Mesh(teamNodeGeometry, new THREE.MeshBasicMaterial({ color }));
+    teamOrbit.add(node);
+    return node;
+  });
+  const orbitLinePositions = new Float32Array((teamNodes.length + 1) * 3);
+  const orbitLineGeometry = new THREE.BufferGeometry();
+  orbitLineGeometry.setAttribute("position", new THREE.BufferAttribute(orbitLinePositions, 3));
+  const orbitLine = new THREE.Line(orbitLineGeometry, new THREE.LineBasicMaterial({ color: 0xf3f0e8, transparent: true, opacity: .14 }));
+  teamOrbit.add(orbitLine);
+  sculpture.add(teamOrbit);
   scene.add(sculpture);
 
-  const particleCount = 360;
+  const activeProjectColor = new THREE.Color(0x235cff);
+  const projectColorObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting && entry.target.dataset.webglColor) {
+        activeProjectColor.set(entry.target.dataset.webglColor);
+      }
+    });
+  }, { rootMargin: "-35% 0px -35% 0px", threshold: 0 });
+  document.querySelectorAll("[data-webgl-color]").forEach((project) => projectColorObserver.observe(project));
+
+  const particleCount = compactDevice ? 170 : 360;
   const particlePositions = new Float32Array(particleCount * 3);
   for (let index = 0; index < particlePositions.length; index += 3) {
     particlePositions[index] = (Math.random() - .5) * 20;
@@ -166,7 +215,23 @@ function initAmbientWebGL() {
     sculpture.rotation.x = elapsed * .07 + pointer.y * .3;
     sculpture.rotation.y = elapsed * .1 + pointer.x * .45;
     sculpture.position.y = 1.2 - scroll * 2.4;
+    shell.material.color.lerp(activeProjectColor, .035);
     knot.rotation.z = -elapsed * .14;
+    teamNodes.forEach((node, index) => {
+      const angle = elapsed * .34 + index * (Math.PI * 2 / teamNodes.length);
+      node.position.set(Math.cos(angle) * 2.35, Math.sin(angle) * 1.45, Math.sin(angle * 1.3) * .65);
+      const pulse = 1 + Math.sin(elapsed * 1.8 + index) * .16;
+      node.scale.setScalar(pulse);
+      const lineIndex = index * 3;
+      orbitLinePositions[lineIndex] = node.position.x;
+      orbitLinePositions[lineIndex + 1] = node.position.y;
+      orbitLinePositions[lineIndex + 2] = node.position.z;
+    });
+    orbitLinePositions[teamNodes.length * 3] = teamNodes[0].position.x;
+    orbitLinePositions[teamNodes.length * 3 + 1] = teamNodes[0].position.y;
+    orbitLinePositions[teamNodes.length * 3 + 2] = teamNodes[0].position.z;
+    orbitLineGeometry.attributes.position.needsUpdate = true;
+    teamOrbit.rotation.y = pointer.x * .35;
     particles.rotation.y = elapsed * .008;
     particles.position.y = scroll * 1.5;
     renderer.render(scene, camera);
