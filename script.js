@@ -99,6 +99,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   initWebGL();
   initAmbientWebGL();
+  initWorkCubes();
   initProjectStages();
 });
 
@@ -115,6 +116,141 @@ function initProjectStages() {
     stage.addEventListener("pointerleave", () => {
       stage.style.transform = "perspective(1100px) rotateX(0deg) rotateY(0deg) scale(1)";
     });
+  });
+}
+
+function initWorkCubes() {
+  const stages = [...document.querySelectorAll(".project-stage")];
+  if (!stages.length || !window.THREE) return;
+
+  const canvas = document.createElement("canvas");
+  canvas.className = "work-cubes-canvas";
+  canvas.setAttribute("aria-hidden", "true");
+  document.body.prepend(canvas);
+
+  const compactDevice = window.matchMedia("(max-width: 760px)").matches;
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(38, 1, .1, 100);
+  camera.position.z = 8;
+  let renderer;
+  try {
+    renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: !compactDevice, powerPreference: "low-power" });
+  } catch (error) {
+    canvas.remove();
+    return;
+  }
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, compactDevice ? 1 : 1.4));
+
+  scene.add(new THREE.AmbientLight(0xffffff, .85));
+  const keyLight = new THREE.DirectionalLight(0xb8f5dc, 1.8);
+  keyLight.position.set(3, 4, 6);
+  scene.add(keyLight);
+
+  const cubeSize = compactDevice ? .25 : .38;
+  const cubeGeometry = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
+  const edgeGeometry = new THREE.EdgesGeometry(cubeGeometry);
+  const palette = [0x235cff, 0xb8f5dc, 0xff6b4a, 0xc6b7ff, 0xf3f0e8];
+  const cubes = Array.from({ length: 9 }, (_, index) => {
+    const cube = new THREE.Mesh(
+      cubeGeometry,
+      new THREE.MeshStandardMaterial({ color: palette[index % palette.length], roughness: .24, metalness: .35, transparent: true, opacity: .92 })
+    );
+    cube.add(new THREE.LineSegments(edgeGeometry, new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: .34 })));
+    cube.userData.target = new THREE.Vector3();
+    cube.userData.targetScale = 1;
+    scene.add(cube);
+    return cube;
+  });
+
+  const trailPositions = new Float32Array(cubes.length * 3);
+  const trailGeometry = new THREE.BufferGeometry();
+  trailGeometry.setAttribute("position", new THREE.BufferAttribute(trailPositions, 3));
+  scene.add(new THREE.Line(trailGeometry, new THREE.LineBasicMaterial({ color: 0xb8f5dc, transparent: true, opacity: .24 })));
+
+  const screenToWorld = (screenX, screenY) => {
+    const visibleHeight = 2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.position.z;
+    const visibleWidth = visibleHeight * camera.aspect;
+    return new THREE.Vector3(
+      (screenX / window.innerWidth - .5) * visibleWidth,
+      -(screenY / window.innerHeight - .5) * visibleHeight,
+      0
+    );
+  };
+
+  const updateTargets = () => {
+    const hero = document.querySelector(".work-hero");
+    const heroRect = hero.getBoundingClientRect();
+    const gridMode = heroRect.bottom > window.innerHeight * .24;
+
+    if (gridMode) {
+      canvas.style.opacity = "1";
+      const centerX = compactDevice ? window.innerWidth * .5 : window.innerWidth * .76;
+      const centerY = compactDevice ? window.innerHeight * .61 : window.innerHeight * .51;
+      const spacing = compactDevice ? 52 : 78;
+      cubes.forEach((cube, index) => {
+        const column = index % 3;
+        const row = Math.floor(index / 3);
+        cube.userData.target.copy(screenToWorld(centerX + (column - 1) * spacing, centerY + (row - 1) * spacing));
+        cube.userData.target.z = (column + row) * -.08;
+        cube.userData.targetScale = 1;
+      });
+      return;
+    }
+
+    const viewportCenter = window.innerHeight * .5;
+    const activeStage = stages.reduce((closest, stage) => {
+      const rect = stage.getBoundingClientRect();
+      const distance = Math.abs(rect.top + rect.height * .5 - viewportCenter);
+      return !closest || distance < closest.distance ? { stage, rect, distance } : closest;
+    }, null);
+    const rect = activeStage.rect;
+    canvas.style.opacity = rect.bottom > -100 && rect.top < window.innerHeight + 100 ? "1" : "0";
+    const startX = Math.max(18, rect.left + rect.width * .12);
+    const endX = Math.min(window.innerWidth - 18, rect.right - rect.width * .12);
+    const lineY = Math.max(30, Math.min(window.innerHeight - 30, rect.top + rect.height * .7));
+    cubes.forEach((cube, index) => {
+      const progress = index / (cubes.length - 1);
+      cube.userData.target.copy(screenToWorld(startX + (endX - startX) * progress, lineY));
+      cube.userData.target.z = Math.sin(progress * Math.PI) * .18;
+      cube.userData.targetScale = compactDevice ? .72 : .82;
+    });
+  };
+
+  const resize = () => {
+    renderer.setSize(window.innerWidth, window.innerHeight, false);
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    updateTargets();
+    cubes.forEach((cube) => cube.position.copy(cube.userData.target));
+  };
+  resize();
+  window.addEventListener("resize", resize);
+
+  let frame;
+  const clock = new THREE.Clock();
+  const render = () => {
+    const elapsed = clock.getElapsedTime();
+    updateTargets();
+    cubes.forEach((cube, index) => {
+      cube.position.lerp(cube.userData.target, reducedMotion ? 1 : .075);
+      const scale = cube.scale.x + (cube.userData.targetScale - cube.scale.x) * .08;
+      cube.scale.setScalar(scale);
+      cube.rotation.x = elapsed * (.28 + index * .012) + index * .16;
+      cube.rotation.y = elapsed * (.36 + index * .01) - index * .12;
+      trailPositions[index * 3] = cube.position.x;
+      trailPositions[index * 3 + 1] = cube.position.y;
+      trailPositions[index * 3 + 2] = cube.position.z;
+    });
+    trailGeometry.attributes.position.needsUpdate = true;
+    renderer.render(scene, camera);
+    if (!reducedMotion) frame = requestAnimationFrame(render);
+  };
+  render();
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) cancelAnimationFrame(frame);
+    else if (!reducedMotion) render();
   });
 }
 
