@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="placeholder.com builds expressive, high-performance 3D websites for ambitious brands.">
+  <title>placeholder.com | Interactive websites with dimension</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&family=Syne:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="nav-shell">
+      <a class="brand" href="index.html" aria-label="placeholder.com home"><span class="brand-mark"></span>placeholder.com</a>
+      <nav class="desktop-nav" aria-label="Primary"><a href="work.html">Work</a><a href="pricing.html">Pricing</a><a href="about.html">About</a><a href="contact.html">Contact</a></nav>
+      <a class="button ghost nav-action" href="contact.html">Start a project <span class="button-arrow">&#8599;</span></a>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="mobile-menu">Menu</button>
+    </div>
+  </header>
+  <nav class="mobile-nav" id="mobile-menu" aria-label="Mobile"><a href="index.html">Home</a><a href="work.html">Work</a><a href="pricing.html">Pricing</a><a href="about.html">About</a><a href="contact.html">Contact</a></nav>
+
+  <main id="main" class="page">
+    <section class="hero" data-assembly>
+      <div class="hero-grid"></div><canvas id="hero-canvas" aria-hidden="true"></canvas><div class="hero-shade"></div>
+      <div class="hero-content">
+        <p class="eyebrow">Independent digital studio / Worldwide</p>
+        <h1>Websites with <span>dimension.</span></h1>
+        <p class="hero-copy">placeholder.com builds beautiful, interactive websites for brands that refuse to blend in. Strategy, design, 3D, and development under one roof.</p>
+        <div class="hero-actions"><a class="button" href="contact.html">Build something memorable <span class="button-arrow">&#8599;</span></a><a class="button ghost" href="work.html">Explore our work</a></div>
+      </div>
+      <div class="assembly" role="group" aria-label="Brand value assembly game">
+        <p class="assembly-instruction"><span>Interactive study 01</span>Drag every block into the core</p>
+        <div class="cube-target" data-cube-count="0">
+          <div class="cube" aria-hidden="true"><span class="cube-face cube-front"></span><span class="cube-face cube-back"></span><span class="cube-face cube-right"></span><span class="cube-face cube-left"></span><span class="cube-face cube-top"></span><span class="cube-face cube-bottom"></span></div>
+          <span class="cube-count">0 / 6</span>
+        </div>
+        <button class="value-block value-1" type="button" data-value="Excellence" style="--sx:-190px;--sy:90px;--sr:-18deg">Excellence</button>
+        <button class="value-block value-2" type="button" data-value="Interactivity" style="--sx:160px;--sy:130px;--sr:16deg">Interactivity</button>
+        <button class="value-block value-3" type="button" data-value="Beautiful" style="--sx:-130px;--sy:-130px;--sr:12deg">Beautiful</button>
+        <button class="value-block value-4" type="button" data-value="Skill" style="--sx:180px;--sy:-80px;--sr:-14deg">Skill</button>
+        <button class="value-block value-5" type="button" data-value="Precision" style="--sx:-210px;--sy:20px;--sr:20deg">Precision</button>
+        <button class="value-block value-6" type="button" data-value="Imagination" style="--sx:220px;--sy:35px;--sr:-20deg">Imagination</button>
+        <div class="assembly-reveal" aria-live="polite"><small>The pieces make the whole</small><strong>placeholder.com</strong></div>
+      </div>
+      <div class="hero-index"><span>Drag to assemble</span><strong>06 / 06</strong><span>Or scroll to separate</span></div>
+    </section>
+
+    <section class="section-map" aria-label="Explore placeholder.com">
+      <a class="map-card map-card-1 reveal" href="work.html"><span>Excellence</span><strong>Selected work</strong><small>See what we have made &#8599;</small></a>
+      <a class="map-card map-card-2 reveal" href="#services-title"><span>Interactivity</span><strong>Capabilities</strong><small>Explore how we build &#8595;</small></a>
+      <a class="map-card map-card-3 reveal" href="pricing.html"><span>Beautiful</span><strong>Clear pricing</strong><small>Find your starting point &#8599;</small></a>
+      <a class="map-card map-card-4 reveal" href="about.html"><span>Skill</span><strong>About the studio</strong><small>Meet the founder &#8599;</small></a>
+    </section>
+
+    <div class="marquee" aria-hidden="true"><div class="marquee-track"><span>Creative direction</span><span>WebGL</span><span>Digital strategy</span><span>Development</span><span>Motion design</span><span>3D production</span><span>Creative direction</span><span>WebGL</span><span>Digital strategy</span><span>Development</span><span>Motion design</span><span>3D production</span></div></div>
+
+    <section class="section" aria-labelledby="work-title">
+      <div class="section-heading reveal"><span class="section-label">Selected projects / 2024-26</span><h2 id="work-title">Made to be <em>used.</em><br>Built to be remembered.</h2></div>
+      <div class="work-list reveal">
+        <a class="work-row" href="work.html#kinetic" data-art="art-kinetic"><span class="work-number">01</span><h3>Kinetic Labs</h3><div class="work-meta"><span>WebGL</span><span>2026</span></div></a>
+        <a class="work-row" href="work.html#arc" data-art="art-arc"><span class="work-number">02</span><h3>Arc Habitat</h3><div class="work-meta"><span>Real estate</span><span>2025</span></div></a>
+        <a class="work-row" href="work.html#north" data-art="art-north"><span class="work-number">03</span><h3>North/Kind</h3><div class="work-meta"><span>Commerce</span><span>2025</span></div></a>
+      </div>
+      <div class="work-preview" aria-hidden="true"><div class="project-art art-kinetic"></div></div>
+    </section>
+
+    <section class="section" aria-labelledby="services-title">
+      <div class="section-heading reveal"><span class="section-label">One studio / Full journey</span><h2 id="services-title">Everything between the first sketch and the first click.</h2></div>
+      <div class="service-grid reveal">
+        <article class="service"><span class="service-code">S_01 / Direction</span><h3>Find the idea</h3><p>Positioning, content structure, art direction, and a clear visual system before production begins.</p></article>
+        <article class="service"><span class="service-code">S_02 / Experience</span><h3>Give it form</h3><p>Interface design, motion studies, 3D scenes, and prototypes that make every interaction earn its place.</p></article>
+        <article class="service"><span class="service-code">S_03 / Engineering</span><h3>Make it real</h3><p>Responsive development, CMS integration, WebGL optimization, accessibility, and launch support.</p></article>
+      </div>
+    </section>
+
+    <div class="cta-wrap reveal"><section class="cta-panel"><p class="eyebrow">Have an ambitious idea?</p><h2>Let us give it a place to live.</h2><a class="button dark" href="contact.html">Tell us about it <span class="button-arrow">&#8599;</span></a></section></div>
+  </main>
+
+  <footer class="site-footer"><div><a class="brand" href="index.html"><span class="brand-mark"></span>placeholder.com</a><p class="footer-lead">Interactive websites for ambitious ideas.</p></div><nav class="footer-nav" aria-label="Footer"><a href="work.html">Work</a><a href="pricing.html">Pricing</a><a href="about.html">About</a><a href="contact.html">Contact</a></nav><div class="footer-meta"><span>&copy; <span data-year></span> placeholder.com</span><span>Built by Sammit Basu</span></div></footer>
+</body>
+</html>

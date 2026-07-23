@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Start a website project with placeholder.com.">
+  <title>Contact | placeholder.com</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&family=Syne:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css"><script src="script.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header"><div class="nav-shell"><a class="brand" href="index.html"><span class="brand-mark"></span>placeholder.com</a><nav class="desktop-nav" aria-label="Primary"><a href="work.html">Work</a><a href="pricing.html">Pricing</a><a href="about.html">About</a><a href="contact.html" aria-current="page">Contact</a></nav><a class="button ghost nav-action" href="contact.html">Start a project <span class="button-arrow">&#8599;</span></a><button class="menu-toggle" type="button" aria-expanded="false" aria-controls="mobile-menu">Menu</button></div></header>
+  <nav class="mobile-nav" id="mobile-menu" aria-label="Mobile"><a href="index.html">Home</a><a href="work.html">Work</a><a href="pricing.html">Pricing</a><a href="about.html">About</a><a href="contact.html">Contact</a></nav>
+  <main id="main" class="page">
+    <header class="page-intro reveal"><p class="eyebrow">New business / Say hello</p><h1>Bring us the idea you cannot stop thinking about.</h1></header>
+    <section class="contact-layout">
+      <aside class="contact-aside reveal"><div><h2>Start with the rough version.</h2><p class="hero-copy">A paragraph is enough. We will reply within two business days with useful questions and a clear next step.</p><div class="contact-details"><div><small>Prefer email?</small><a href="mailto:hello@placeholder.com">hello@placeholder.com</a></div><div><small>Based in</small><span>New York / Working worldwide</span></div><div><small>Availability</small><span>Booking projects for Q3 2026</span></div></div></div></aside>
+      <form class="contact-form reveal" data-contact-form novalidate>
+        <div class="field"><label for="name">Your name *</label><input id="name" name="name" type="text" autocomplete="name" required placeholder="Ada Lovelace"><span class="field-error"></span></div>
+        <div class="field"><label for="email">Email address *</label><input id="email" name="email" type="email" autocomplete="email" required placeholder="ada@company.com"><span class="field-error"></span></div>
+        <div class="field"><label for="company">Company</label><input id="company" name="company" type="text" autocomplete="organization" placeholder="Your company"><span class="field-error"></span></div>
+        <div class="field"><label for="budget">Project budget *</label><select id="budget" name="budget" required><option value="">Choose a range</option><option>$6k-$12k</option><option>$12k-$24k</option><option>$24k-$50k</option><option>$50k+</option></select><span class="field-error"></span></div>
+        <div class="field full"><label for="message">What are we making? *</label><textarea id="message" name="message" required placeholder="Tell us about the idea, the audience, and what success looks like."></textarea><span class="field-error"></span></div>
+        <div class="form-actions"><button class="button" type="submit">Send project brief <span class="button-arrow">&#8599;</span></button><span class="form-status" role="status" aria-live="polite"></span></div>
+      </form>
+    </section>
+  </main>
+  <footer class="site-footer"><div><a class="brand" href="index.html"><span class="brand-mark"></span>placeholder.com</a><p class="footer-lead">Interactive websites for ambitious ideas.</p></div><nav class="footer-nav" aria-label="Footer"><a href="work.html">Work</a><a href="pricing.html">Pricing</a><a href="about.html">About</a><a href="contact.html">Contact</a></nav><div class="footer-meta"><span>&copy; <span data-year></span> placeholder.com</span><span>Built by Sammit Basu</span></div></footer>
+</body>
+</html>
