@@ -134,8 +134,10 @@ function initAssembly() {
       const deltaX = event.clientX - originX;
       const deltaY = event.clientY - originY;
       moved = moved || Math.abs(deltaX) + Math.abs(deltaY) > 6;
-      block.style.left = `${startLeft + deltaX}px`;
-      block.style.top = `${startTop + deltaY}px`;
+      const nextLeft = Math.max(0, Math.min(assembly.clientWidth - block.offsetWidth, startLeft + deltaX));
+      const nextTop = Math.max(0, Math.min(assembly.clientHeight - block.offsetHeight, startTop + deltaY));
+      block.style.left = `${nextLeft}px`;
+      block.style.top = `${nextTop}px`;
     });
 
     block.addEventListener("pointerup", (event) => {

@@ -152,7 +152,14 @@ img, canvas { display: block; max-width: 100%; }
   padding: 150px max(24px, calc((100vw - 1344px) / 2)) 56px;
   isolation: isolate;
 }
-#hero-canvas { position: absolute; inset: 88px 0 0; width: 100%; height: calc(100% - 88px); z-index: -2; }
+#hero-canvas {
+  position: absolute;
+  inset: 88px 16px 0;
+  width: calc(100% - 32px);
+  height: calc(100% - 88px);
+  z-index: -2;
+  border-radius: 32px 32px 0 0;
+}
 .hero-grid {
   position: absolute;
   inset: 0;
@@ -330,7 +337,7 @@ h1, h2, h3, p { margin-top: 0; }
 .assembly.complete .cube-target { left: 75%; top: 48%; width: min(28vw, 350px); }
 .assembly.complete .cube-target::before, .assembly.complete .cube-target::after, .assembly.complete .cube-count { opacity: 0; }
 .assembly.complete .assembly-reveal { opacity: 1; transform: scale(1); }
-.hero.assembled .assembly.complete { opacity: 1 !important; visibility: visible; pointer-events: none; }
+.hero.assembled .assembly.complete { z-index: 1; opacity: 1 !important; visibility: visible; pointer-events: none; }
 .hero.assembled .assembly-reveal { opacity: 0; transition: opacity .35s ease 1.05s; }
 
 .section-map {
@@ -579,7 +586,7 @@ h1, h2, h3, p { margin-top: 0; }
   .section, .section-map, .site-footer, .page-intro, .case-grid, .pricing-shell, .contact-layout, .founder-layout { width: min(100% - 32px, 1344px); }
   .site-header { top: 10px; width: calc(100% - 24px); height: 58px; border-radius: 18px; }
   .site-header.scrolled { width: calc(100% - 24px); }
-  #hero-canvas { inset: 76px 0 0; height: calc(100% - 76px); }
+  #hero-canvas { inset: 76px 8px 0; width: calc(100% - 16px); height: calc(100% - 76px); border-radius: 24px 24px 0 0; }
   .nav-shell { width: calc(100% - 18px); }
   .mobile-nav { top: 78px; }
   .hero { min-height: max(100svh, 820px); padding: 110px 16px 32px; }
@@ -611,6 +618,13 @@ h1, h2, h3, p { margin-top: 0; }
   .form-actions { align-items: stretch; flex-direction: column; }
   .principle-list article { grid-template-columns: 36px 1fr; gap: 1rem; }
   .principle-list p { grid-column: 2; }
+}
+
+@media (max-width: 420px) {
+  .assembly-instruction { font-size: .56rem; }
+  .cube-target { --cube-size: clamp(88px, 27vw, 112px); width: 88vw; }
+  .value-block { min-width: min(124px, 39vw); padding: .75rem .55rem; font-size: .56rem; }
+  .assembly.complete .cube-target { left: 76%; top: 68%; width: 54vw; }
 }
 
 @media (pointer: coarse) { .work-preview { display: none; } }
