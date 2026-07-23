@@ -121,7 +121,8 @@ function initProjectStages() {
 
 function initWorkCubes() {
   const stages = [...document.querySelectorAll(".project-stage")];
-  if (!stages.length || !window.THREE) return;
+  const dock = document.querySelector(".cube-dock");
+  if (!stages.length || !dock || !window.THREE) return;
 
   const canvas = document.createElement("canvas");
   canvas.className = "work-cubes-canvas";
@@ -135,29 +136,68 @@ function initWorkCubes() {
   camera.position.z = 8;
   let renderer;
   try {
-    renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: !compactDevice, powerPreference: "low-power" });
+    renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: "high-performance" });
   } catch (error) {
     canvas.remove();
     return;
   }
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, compactDevice ? 1 : 1.4));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, compactDevice ? 1.15 : 1.6));
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.15;
+  renderer.autoClear = false;
 
-  scene.add(new THREE.AmbientLight(0xffffff, .85));
-  const keyLight = new THREE.DirectionalLight(0xb8f5dc, 1.8);
-  keyLight.position.set(3, 4, 6);
-  scene.add(keyLight);
+  scene.add(new THREE.HemisphereLight(0xe8f7ff, 0x101426, 1.35));
+  const keyLight = new THREE.DirectionalLight(0xffffff, 2.2);
+  keyLight.position.set(4, 6, 7);
+  const blueLight = new THREE.PointLight(0x235cff, 2.8, 14);
+  blueLight.position.set(-4, 1, 4);
+  const warmLight = new THREE.PointLight(0xff8b6f, 1.8, 12);
+  warmLight.position.set(4, -2, 3);
+  scene.add(keyLight, blueLight, warmLight);
 
-  const cubeSize = compactDevice ? .25 : .38;
+  const reflectionFaces = [
+    ["#f8fbff", "#235cff"], ["#141722", "#b8f5dc"],
+    ["#ffffff", "#6d7898"], ["#080a10", "#ff6b4a"],
+    ["#dff5ff", "#839dff"], ["#090b13", "#c6b7ff"]
+  ].map(([start, end]) => {
+    const face = document.createElement("canvas");
+    face.width = 128;
+    face.height = 128;
+    const context = face.getContext("2d");
+    const gradient = context.createLinearGradient(0, 0, 128, 128);
+    gradient.addColorStop(0, start);
+    gradient.addColorStop(.42, "#ffffff");
+    gradient.addColorStop(.5, "#202534");
+    gradient.addColorStop(1, end);
+    context.fillStyle = gradient;
+    context.fillRect(0, 0, 128, 128);
+    return face;
+  });
+  const environment = new THREE.CubeTexture(reflectionFaces);
+  environment.needsUpdate = true;
+  scene.environment = environment;
+
+  const cubeSize = compactDevice ? .27 : .4;
   const cubeGeometry = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
   const edgeGeometry = new THREE.EdgesGeometry(cubeGeometry);
-  const palette = [0x235cff, 0xb8f5dc, 0xff6b4a, 0xc6b7ff, 0xf3f0e8];
+  const palette = [0x9aa8c7, 0xd8e4f2, 0x6d7f9f, 0xc8d0df, 0x7f91b2];
   const cubes = Array.from({ length: 9 }, (_, index) => {
     const cube = new THREE.Mesh(
       cubeGeometry,
-      new THREE.MeshStandardMaterial({ color: palette[index % palette.length], roughness: .24, metalness: .35, transparent: true, opacity: .92 })
+      new THREE.MeshPhysicalMaterial({
+        color: palette[index % palette.length],
+        envMap: environment,
+        envMapIntensity: 1.8,
+        metalness: .92,
+        roughness: .12,
+        clearcoat: 1,
+        clearcoatRoughness: .08
+      })
     );
-    cube.add(new THREE.LineSegments(edgeGeometry, new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: .34 })));
+    cube.add(new THREE.LineSegments(edgeGeometry, new THREE.LineBasicMaterial({ color: 0xeaf4ff, transparent: true, opacity: .48 })));
     cube.userData.target = new THREE.Vector3();
+    cube.userData.velocity = new THREE.Vector3();
     cube.userData.targetScale = 1;
     scene.add(cube);
     return cube;
@@ -166,7 +206,19 @@ function initWorkCubes() {
   const trailPositions = new Float32Array(cubes.length * 3);
   const trailGeometry = new THREE.BufferGeometry();
   trailGeometry.setAttribute("position", new THREE.BufferAttribute(trailPositions, 3));
-  scene.add(new THREE.Line(trailGeometry, new THREE.LineBasicMaterial({ color: 0xb8f5dc, transparent: true, opacity: .24 })));
+  const trail = new THREE.Line(trailGeometry, new THREE.LineBasicMaterial({ color: 0xc9e8ff, transparent: true, opacity: .28 }));
+  scene.add(trail);
+
+  const raycaster = new THREE.Raycaster();
+  const dragPlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+  const pointer = new THREE.Vector2();
+  const pointerWorld = new THREE.Vector3();
+  const dragOffset = new THREE.Vector3();
+  const springDelta = new THREE.Vector3();
+  let draggedCube = null;
+  let currentClipRect = dock.getBoundingClientRect();
+  let displayedStageIndex = 0;
+  let transitionTimer = null;
 
   const screenToWorld = (screenX, screenY) => {
     const visibleHeight = 2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.position.z;
@@ -181,13 +233,14 @@ function initWorkCubes() {
   const updateTargets = () => {
     const hero = document.querySelector(".work-hero");
     const heroRect = hero.getBoundingClientRect();
-    const gridMode = heroRect.bottom > window.innerHeight * .24;
+    const gridMode = heroRect.bottom > window.innerHeight * .18;
 
     if (gridMode) {
       canvas.style.opacity = "1";
-      const centerX = compactDevice ? window.innerWidth * .5 : window.innerWidth * .76;
-      const centerY = compactDevice ? window.innerHeight * .61 : window.innerHeight * .51;
-      const spacing = compactDevice ? 52 : 78;
+      currentClipRect = dock.getBoundingClientRect();
+      const centerX = currentClipRect.left + currentClipRect.width * .5;
+      const centerY = currentClipRect.top + currentClipRect.height * .46;
+      const spacing = Math.min(currentClipRect.width, currentClipRect.height) * .2;
       cubes.forEach((cube, index) => {
         const column = index % 3;
         const row = Math.floor(index / 3);
@@ -199,16 +252,28 @@ function initWorkCubes() {
     }
 
     const viewportCenter = window.innerHeight * .5;
-    const activeStage = stages.reduce((closest, stage) => {
+    const candidate = stages.reduce((closest, stage, index) => {
       const rect = stage.getBoundingClientRect();
       const distance = Math.abs(rect.top + rect.height * .5 - viewportCenter);
-      return !closest || distance < closest.distance ? { stage, rect, distance } : closest;
+      return !closest || distance < closest.distance ? { index, rect, distance } : closest;
     }, null);
-    const rect = activeStage.rect;
-    canvas.style.opacity = rect.bottom > -100 && rect.top < window.innerHeight + 100 ? "1" : "0";
-    const startX = Math.max(18, rect.left + rect.width * .12);
-    const endX = Math.min(window.innerWidth - 18, rect.right - rect.width * .12);
-    const lineY = Math.max(30, Math.min(window.innerHeight - 30, rect.top + rect.height * .7));
+
+    if (candidate.index !== displayedStageIndex && !transitionTimer) {
+      canvas.style.opacity = "0";
+      transitionTimer = window.setTimeout(() => {
+        displayedStageIndex = candidate.index;
+        currentClipRect = stages[displayedStageIndex].getBoundingClientRect();
+        canvas.style.opacity = "1";
+        transitionTimer = null;
+      }, 280);
+    }
+
+    const rect = stages[displayedStageIndex].getBoundingClientRect();
+    currentClipRect = rect;
+    canvas.style.opacity = !transitionTimer && rect.bottom > -100 && rect.top < window.innerHeight + 100 ? "1" : "0";
+    const startX = rect.left + rect.width * .13;
+    const endX = rect.right - rect.width * .13;
+    const lineY = rect.top + rect.height * .72;
     cubes.forEach((cube, index) => {
       const progress = index / (cubes.length - 1);
       cube.userData.target.copy(screenToWorld(startX + (endX - startX) * progress, lineY));
@@ -216,6 +281,49 @@ function initWorkCubes() {
       cube.userData.targetScale = compactDevice ? .72 : .82;
     });
   };
+
+  const updatePointer = (event) => {
+    pointer.x = event.clientX / window.innerWidth * 2 - 1;
+    pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    raycaster.setFromCamera(pointer, camera);
+  };
+
+  window.addEventListener("pointerdown", (event) => {
+    updatePointer(event);
+    const hit = raycaster.intersectObjects(cubes, false)[0];
+    if (!hit) return;
+    draggedCube = hit.object;
+    raycaster.ray.intersectPlane(dragPlane, pointerWorld);
+    dragOffset.copy(draggedCube.position).sub(pointerWorld);
+    draggedCube.userData.velocity.set(0, 0, 0);
+    document.body.classList.add("cube-dragging");
+    event.preventDefault();
+  });
+
+  window.addEventListener("pointermove", (event) => {
+    updatePointer(event);
+    if (!draggedCube) {
+      const hit = raycaster.intersectObjects(cubes, false)[0];
+      document.body.classList.toggle("cube-hover", Boolean(hit));
+      return;
+    }
+    raycaster.ray.intersectPlane(dragPlane, pointerWorld);
+    const next = pointerWorld.add(dragOffset);
+    const topLeft = screenToWorld(currentClipRect.left + 18, currentClipRect.top + 18);
+    const bottomRight = screenToWorld(currentClipRect.right - 18, currentClipRect.bottom - 18);
+    draggedCube.position.x = THREE.MathUtils.clamp(next.x, topLeft.x, bottomRight.x);
+    draggedCube.position.y = THREE.MathUtils.clamp(next.y, bottomRight.y, topLeft.y);
+    event.preventDefault();
+  }, { passive: false });
+
+  const releaseCube = () => {
+    if (!draggedCube) return;
+    draggedCube = null;
+    document.body.classList.remove("cube-dragging", "cube-hover");
+  };
+  window.addEventListener("pointerup", releaseCube);
+  window.addEventListener("pointercancel", releaseCube);
+  window.addEventListener("blur", releaseCube);
 
   const resize = () => {
     renderer.setSize(window.innerWidth, window.innerHeight, false);
@@ -233,17 +341,39 @@ function initWorkCubes() {
     const elapsed = clock.getElapsedTime();
     updateTargets();
     cubes.forEach((cube, index) => {
-      cube.position.lerp(cube.userData.target, reducedMotion ? 1 : .075);
-      const scale = cube.scale.x + (cube.userData.targetScale - cube.scale.x) * .08;
+      if (cube !== draggedCube) {
+        if (reducedMotion) {
+          cube.position.copy(cube.userData.target);
+        } else {
+          springDelta.copy(cube.userData.target).sub(cube.position);
+          cube.userData.velocity.addScaledVector(springDelta, .022);
+          cube.userData.velocity.multiplyScalar(.84);
+          cube.position.add(cube.userData.velocity);
+        }
+      }
+      const scale = cube.scale.x + (cube.userData.targetScale - cube.scale.x) * .1;
       cube.scale.setScalar(scale);
-      cube.rotation.x = elapsed * (.28 + index * .012) + index * .16;
-      cube.rotation.y = elapsed * (.36 + index * .01) - index * .12;
+      cube.rotation.x = elapsed * (.22 + index * .008) + index * .16;
+      cube.rotation.y = elapsed * (.3 + index * .008) - index * .12;
       trailPositions[index * 3] = cube.position.x;
       trailPositions[index * 3 + 1] = cube.position.y;
       trailPositions[index * 3 + 2] = cube.position.z;
     });
     trailGeometry.attributes.position.needsUpdate = true;
-    renderer.render(scene, camera);
+    renderer.setScissorTest(false);
+    renderer.clear();
+    const clipLeft = Math.max(0, currentClipRect.left);
+    const clipTop = Math.max(0, currentClipRect.top);
+    const clipRight = Math.min(window.innerWidth, currentClipRect.right);
+    const clipBottom = Math.min(window.innerHeight, currentClipRect.bottom);
+    const clipWidth = Math.max(0, clipRight - clipLeft);
+    const clipHeight = Math.max(0, clipBottom - clipTop);
+    if (clipWidth && clipHeight) {
+      renderer.setScissor(clipLeft, window.innerHeight - clipBottom, clipWidth, clipHeight);
+      renderer.setScissorTest(true);
+      renderer.render(scene, camera);
+      renderer.setScissorTest(false);
+    }
     if (!reducedMotion) frame = requestAnimationFrame(render);
   };
   render();
