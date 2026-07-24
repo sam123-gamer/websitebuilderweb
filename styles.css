@@ -519,14 +519,14 @@ h1, h2, h3, p { margin-top: 0; }
   position: relative;
   z-index: 1;
   width: min(1344px, calc(100% - 48px));
-  margin: 0 auto 24px;
-  padding: 56px 0 42px;
+  margin: 24px auto;
+  padding: 56px clamp(24px, 4vw, 56px) 42px;
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 2rem;
   align-items: end;
   border: 1px solid rgba(255,255,255,.12);
-  border-radius: 0 0 28px 28px;
+  border-radius: 28px;
   background: linear-gradient(180deg, rgba(10,12,18,.82), rgba(5,7,11,.96));
   box-shadow: 0 26px 80px rgba(0,0,0,.26), inset 0 1px 0 rgba(255,255,255,.06);
   overflow: hidden;
@@ -790,7 +790,7 @@ h1, h2, h3, p { margin-top: 0; }
   .cta-wrap { padding-inline: 0; }
   .cta-panel { min-height: 360px; padding: 2rem 1.25rem; }
   .site-footer { grid-template-columns: 1fr; }
-  .site-footer { border-radius: 0 0 22px 22px; padding: 42px 0 34px; margin-bottom: 18px; }
+  .site-footer { border-radius: 22px; padding: 42px 20px 34px; margin-block: 18px; }
   .footer-nav { flex-wrap: wrap; }
   .footer-meta { flex-direction: column; gap: .5rem; }
   .page-intro { padding: 120px 0 52px; }
