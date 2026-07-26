@@ -50,7 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const form = document.querySelector("[data-contact-form]");
   const requestedPackage = new URLSearchParams(window.location.search).get("package");
   if (form && requestedPackage) {
-    const packageBudgets = { foundation: "$6k-$12k", signature: "$12k-$24k", worldbuild: "$24k-$50k" };
+    const packageBudgets = { foundation: "INR 15,000", signature: "INR 27,000", worldbuild: "INR 50,000", custom: "Custom pricing" };
     const budget = form.querySelector("[name='budget']");
     if (packageBudgets[requestedPackage]) budget.value = packageBudgets[requestedPackage];
   }
@@ -1429,20 +1429,44 @@ function initAmbientWebGL() {
   }
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, compactDevice ? 1.1 : 1.35));
 
+  const pageName = location.pathname.split("/").pop() || "index.html";
+  const pagePalettes = {
+    "index.html": [0x235cff, 0xb8f5dc, 0xff6b4a],
+    "work.html": [0xff6b4a, 0x235cff, 0xb8f5dc],
+    "pricing.html": [0xb8f5dc, 0xc6b7ff, 0x235cff],
+    "about.html": [0xc6b7ff, 0xff6b4a, 0xb8f5dc],
+    "contact.html": [0xff7a3d, 0xb8f5dc, 0x235cff]
+  };
+  const palette = pagePalettes[pageName] || pagePalettes["index.html"];
+
   const sculpture = new THREE.Group();
   const shell = new THREE.Mesh(
     new THREE.IcosahedronGeometry(1.7, 1),
-    new THREE.MeshBasicMaterial({ color: 0x235cff, wireframe: true, transparent: true, opacity: .18 })
+    new THREE.MeshBasicMaterial({ color: palette[0], wireframe: true, transparent: true, opacity: .22 })
   );
   const knot = new THREE.Mesh(
     new THREE.TorusKnotGeometry(.9, .2, 90, 10),
-    new THREE.MeshBasicMaterial({ color: 0xb8f5dc, wireframe: true, transparent: true, opacity: .13 })
+    new THREE.MeshBasicMaterial({ color: palette[1], wireframe: true, transparent: true, opacity: .17 })
   );
   sculpture.add(shell, knot);
 
+  const draftingRings = new THREE.Group();
+  [2.05, 2.55, 3.08].forEach((radius, index) => {
+    const ring = new THREE.LineLoop(
+      new THREE.BufferGeometry().setFromPoints(Array.from({ length: 96 }, (_, pointIndex) => {
+        const angle = pointIndex / 96 * Math.PI * 2;
+        return new THREE.Vector3(Math.cos(angle) * radius, Math.sin(angle) * radius, 0);
+      })),
+      new THREE.LineBasicMaterial({ color: palette[index], transparent: true, opacity: .12 - index * .018 })
+    );
+    ring.rotation.set(index * .72 + .3, index * .55, index * .9);
+    draftingRings.add(ring);
+  });
+  sculpture.add(draftingRings);
+
   const teamOrbit = new THREE.Group();
   const teamNodeGeometry = new THREE.SphereGeometry(compactDevice ? .11 : .14, 10, 8);
-  const teamNodes = [0xff6b4a, 0xb8f5dc, 0xc6b7ff].map((color) => {
+  const teamNodes = [palette[2], palette[1], 0xc6b7ff, palette[0]].map((color) => {
     const node = new THREE.Mesh(teamNodeGeometry, new THREE.MeshBasicMaterial({ color }));
     teamOrbit.add(node);
     return node;
@@ -1455,7 +1479,40 @@ function initAmbientWebGL() {
   sculpture.add(teamOrbit);
   scene.add(sculpture);
 
-  const activeProjectColor = new THREE.Color(0x235cff);
+  const shardField = new THREE.Group();
+  const shardGeometry = new THREE.OctahedronGeometry(compactDevice ? .2 : .28, 0);
+  const shardMaterials = palette.map((color, index) => new THREE.MeshBasicMaterial({
+    color,
+    wireframe: true,
+    transparent: true,
+    opacity: .1 + index * .025
+  }));
+  const shardCount = compactDevice ? 8 : 16;
+  const shards = Array.from({ length: shardCount }, (_, index) => {
+    const shard = new THREE.Mesh(shardGeometry, shardMaterials[index % shardMaterials.length]);
+    const column = index % 4;
+    const row = Math.floor(index / 4);
+    shard.position.set(-7.8 + column * 5.1 + Math.sin(index * 2.3), 5.2 - row * 3.4 + Math.cos(index) * .8, -2.5 - index % 3);
+    shard.scale.setScalar(.55 + (index % 5) * .2);
+    shard.userData.baseY = shard.position.y;
+    shard.userData.phase = index * .73;
+    shardField.add(shard);
+    return shard;
+  });
+  scene.add(shardField);
+
+  const constellationPoints = Array.from({ length: compactDevice ? 14 : 26 }, (_, index) => {
+    const angle = index * 2.39996;
+    const radius = 2.6 + (index % 7) * .72;
+    return new THREE.Vector3(Math.cos(angle) * radius, Math.sin(angle) * radius * .62, -4 - index % 4);
+  });
+  const constellation = new THREE.Line(
+    new THREE.BufferGeometry().setFromPoints(constellationPoints),
+    new THREE.LineBasicMaterial({ color: palette[1], transparent: true, opacity: .075 })
+  );
+  scene.add(constellation);
+
+  const activeProjectColor = new THREE.Color(palette[0]);
   const projectColorObserver = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
       if (entry.isIntersecting && entry.target.dataset.webglColor) {
@@ -1476,7 +1533,7 @@ function initAmbientWebGL() {
   particleGeometry.setAttribute("position", new THREE.BufferAttribute(particlePositions, 3));
   const particles = new THREE.Points(
     particleGeometry,
-    new THREE.PointsMaterial({ color: 0xff6b4a, size: .025, transparent: true, opacity: .5 })
+    new THREE.PointsMaterial({ color: palette[2], size: compactDevice ? .025 : .032, transparent: true, opacity: .58 })
   );
   scene.add(particles);
 
@@ -1506,6 +1563,8 @@ function initAmbientWebGL() {
     sculpture.position.y = 1.2 - scroll * 2.4;
     shell.material.color.lerp(activeProjectColor, .035);
     knot.rotation.z = -elapsed * .14;
+    draftingRings.rotation.x = elapsed * .025 - pointer.y * .18;
+    draftingRings.rotation.z = elapsed * .04;
     teamNodes.forEach((node, index) => {
       const angle = elapsed * .34 + index * (Math.PI * 2 / teamNodes.length);
       node.position.set(Math.cos(angle) * 2.35, Math.sin(angle) * 1.45, Math.sin(angle * 1.3) * .65);
@@ -1521,6 +1580,14 @@ function initAmbientWebGL() {
     orbitLinePositions[teamNodes.length * 3 + 2] = teamNodes[0].position.z;
     orbitLineGeometry.attributes.position.needsUpdate = true;
     teamOrbit.rotation.y = pointer.x * .35;
+    shards.forEach((shard, index) => {
+      shard.position.y = shard.userData.baseY + Math.sin(elapsed * .28 + shard.userData.phase) * .45 + scroll * ((index % 3) - 1) * 3.2;
+      shard.rotation.x = elapsed * (.045 + index * .002) + pointer.y * .3;
+      shard.rotation.y = elapsed * (.06 + index * .002) + pointer.x * .4;
+    });
+    shardField.position.x = pointer.x * -.8;
+    constellation.rotation.z = elapsed * -.006;
+    constellation.position.set(pointer.x * .35, -scroll * 1.2 + pointer.y * -.25, 0);
     particles.rotation.y = elapsed * .008;
     particles.position.y = scroll * 1.5;
     renderer.render(scene, camera);
