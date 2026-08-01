@@ -16,21 +16,18 @@
   <main id="main" class="page">
     <header class="page-intro reveal"><p class="eyebrow">Start a project / Tell us what you're planning</p><h1>Tell us about the website or platform you want to build.</h1></header>
     <section class="contact-layout">
-      <aside class="contact-aside reveal"><div><h2>Start with the rough version.</h2><p class="hero-copy">A short outline is enough. We'll reply within two business days with questions, recommendations, and a clear next step.</p><div class="contact-details"><div><small>Prefer email?</small><a href="mailto:aiclub.heads.vsa@gmail.com">aiclub.heads.vsa@gmail.com</a></div><div><small>Phone</small><a href="tel:+919901403972">+91&nbsp;9901403972</a></div><div><small>Based in</small><span>Bengaluru / Available worldwide</span></div><div><small>Availability</small><span>Booking projects for Q3 2026</span></div></div></div></aside>
-      <form class="contact-form reveal" data-contact-form action="https://formsubmit.co/ajax/aiclub.heads.vsa@gmail.com" method="POST" novalidate>
-        <input type="hidden" name="_subject" value="New project inquiry from weblo">
-        <input type="hidden" name="_template" value="table">
-        <input type="hidden" name="_captcha" value="false">
-        <input type="hidden" name="_autoresponse" value="Thanks for contacting weblo. We've received your project brief and will reply within two business days with any questions and a suggested next step. - weblo">
-        <div class="field"><label for="name">Your name *</label><input id="name" name="name" type="text" autocomplete="name" required placeholder="Ada Lovelace"><span class="field-error"></span></div>
-        <div class="field"><label for="email">Email address *</label><input id="email" name="email" type="email" autocomplete="email" required placeholder="ada@company.com"><span class="field-error"></span></div>
-        <div class="field"><label for="company">Company</label><input id="company" name="company" type="text" autocomplete="organization" placeholder="Your company"><span class="field-error"></span></div>
+      <aside class="contact-aside reveal"><div><h2>Start with the rough version.</h2><p class="hero-copy">A short outline is enough. We'll reply within two business days with questions, recommendations, and a clear next step.</p><div class="contact-details"><div><small>Prefer email?</small><a href="mailto:contact@theweblo.com">contact@theweblo.com</a></div><div><small>Phone</small><a href="tel:+919901403972">+91&nbsp;9901403972</a></div><div><small>Based in</small><span>Bengaluru / Available worldwide</span></div><div><small>Availability</small><span>Booking projects for Q3 2026</span></div></div></div></aside>
+      <form class="contact-form reveal" data-contact-form action="/api/submit-form" method="POST" novalidate>
+        <div class="form-trap" aria-hidden="true"><label for="website">Leave this field empty</label><input id="website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
+        <div class="field"><label for="name">Your name *</label><input id="name" name="name" type="text" autocomplete="name" maxlength="100" required placeholder="Ada Lovelace"><span class="field-error"></span></div>
+        <div class="field"><label for="email">Email address *</label><input id="email" name="email" type="email" autocomplete="email" maxlength="254" required placeholder="ada@company.com"><span class="field-error"></span></div>
+        <div class="field"><label for="company">Company</label><input id="company" name="company" type="text" autocomplete="organization" maxlength="150" placeholder="Your company"><span class="field-error"></span></div>
         <div class="field"><label for="budget">Project budget *</label><select id="budget" name="budget" required><option value="">Choose a package</option><option value="INR 15,000">&#8377;15,000 / Foundation</option><option value="INR 27,000">&#8377;27,000 / Signature</option><option value="INR 50,000">&#8377;50,000 / Worldbuild</option><option value="Custom pricing">Custom scope / Price on request</option></select><span class="field-error"></span></div>
-        <div class="field full"><label for="message">What would you like to build? *</label><textarea id="message" name="message" required placeholder="Tell us about the idea, the audience, and what success looks like."></textarea><span class="field-error"></span></div>
+        <div class="field full"><label for="message">What would you like to build? *</label><textarea id="message" name="message" maxlength="5000" required placeholder="Tell us about the idea, the audience, and what success looks like."></textarea><span class="field-error"></span></div>
         <div class="form-actions"><button class="button" type="submit">Send project brief <span class="button-arrow">&#8599;</span></button><span class="form-status" role="status" aria-live="polite"></span></div>
       </form>
     </section>
   </main>
-  <footer class="site-footer"><div><a class="brand" href="index.html"><span class="brand-mark"></span>weblo</a><p class="footer-lead">Distinctive websites, thoughtfully designed and built.</p></div><nav class="footer-nav" aria-label="Footer"><a href="work.html">Work</a><a href="pricing.html">Pricing</a><a href="about.html">About</a><a href="contact.html">Contact</a></nav><div class="footer-meta"><span>&copy; <span data-year></span> weblo</span><span>Designed and built by weblo</span></div></footer>
+  <footer class="site-footer"><div><a class="brand" href="index.html"><span class="brand-mark"></span>weblo</a><p class="footer-lead">Distinctive websites, thoughtfully designed and built.</p></div><nav class="footer-nav" aria-label="Footer"><a href="work.html">Work</a><a href="pricing.html">Pricing</a><a href="about.html">About</a><a href="contact.html">Contact</a></nav><div class="footer-meta"><span>Designed and Built by Sammit Basu</span></div></footer>
 </body>
 </html>

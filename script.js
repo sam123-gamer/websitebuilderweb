@@ -2,10 +2,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const header = document.querySelector(".site-header");
   const menuButton = document.querySelector(".menu-toggle");
   const mobileNav = document.querySelector(".mobile-nav");
-  const year = document.querySelector("[data-year]");
-
-  if (year) year.textContent = new Date().getFullYear();
-
   const updateHeader = () => header?.classList.toggle("scrolled", window.scrollY > 18);
   updateHeader();
   window.addEventListener("scroll", updateHeader, { passive: true });
@@ -20,6 +16,8 @@ document.addEventListener("DOMContentLoaded", () => {
   mobileNav?.querySelectorAll("a").forEach((link) => link.addEventListener("click", () => {
     mobileNav.classList.remove("open");
     document.body.classList.remove("menu-open");
+    menuButton.setAttribute("aria-expanded", "false");
+    menuButton.textContent = "Menu";
   }));
 
   initSiteLoader();
@@ -65,15 +63,28 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!valid) return;
 
     const data = new FormData(form);
-    data.set("_subject", `New project inquiry from ${data.get("name")}`);
+    const company = String(data.get("company") || "").trim();
+    const payload = {
+      userName: String(data.get("name") || "").trim(),
+      userEmail: String(data.get("email") || "").trim(),
+      userChoices: [
+        ...(company ? [{ company }] : []),
+        { budget: String(data.get("budget") || "").trim() }
+      ],
+      userAnswers: [String(data.get("message") || "").trim()],
+      website: String(data.get("website") || ""),
+      submissionId: typeof crypto.randomUUID === "function"
+        ? crypto.randomUUID()
+        : `${Date.now()}-${Math.random().toString(36).slice(2)}`
+    };
     status.textContent = "Sending your project brief...";
     submitButton.disabled = true;
 
     try {
       const response = await fetch(form.action, {
         method: "POST",
-        body: data,
-        headers: { Accept: "application/json" }
+        body: JSON.stringify(payload),
+        headers: { Accept: "application/json", "Content-Type": "application/json" }
       });
 
       if (!response.ok) throw new Error("Form submission failed");
@@ -81,7 +92,7 @@ document.addEventListener("DOMContentLoaded", () => {
       form.reset();
       status.textContent = "Brief sent. Please check your email for confirmation.";
     } catch (error) {
-      status.textContent = "Could not send automatically. Email us at aiclub.heads.vsa@gmail.com.";
+      status.textContent = "Could not send automatically. Email us at contact@theweblo.com.";
     } finally {
       submitButton.disabled = false;
     }
