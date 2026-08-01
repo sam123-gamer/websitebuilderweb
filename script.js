@@ -22,6 +22,8 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.classList.remove("menu-open");
   }));
 
+  initSiteLoader();
+
   const preview = document.querySelector(".work-preview");
   document.querySelectorAll(".work-row[data-art]").forEach((row) => {
     row.addEventListener("mouseenter", () => {
@@ -101,6 +103,137 @@ function initCursorSurfaces() {
       surface.style.setProperty("--cursor-y", `${event.clientY - rect.top}px`);
     }, { passive: true });
   });
+}
+
+function signalCurtainReady() {
+  if (document.documentElement.classList.contains("curtain-ready")) return;
+  document.documentElement.classList.add("curtain-ready");
+  window.dispatchEvent(new Event("weblo:curtain-ready"));
+}
+
+function initSiteLoader() {
+  const loader = document.querySelector("[data-site-loader]");
+  if (!loader) return;
+  if (document.documentElement.classList.contains("loader-bypassed")) {
+    loader.remove();
+    return;
+  }
+
+  const canvas = loader.querySelector("[data-loader-grid]");
+  const context = canvas?.getContext("2d");
+  const glow = loader.querySelector("[data-loader-glow]");
+  const count = loader.querySelector("[data-loader-count]");
+  const startedAt = performance.now();
+  const minimumDuration = 5000;
+  const maximumDuration = 12000;
+  const pointer = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+  const target = { ...pointer };
+  let curtainReady = document.documentElement.classList.contains("curtain-ready");
+  let frame;
+  let finished = false;
+  let width = window.innerWidth;
+  let height = window.innerHeight;
+  let ratio = 1;
+
+  const resize = () => {
+    width = window.innerWidth;
+    height = window.innerHeight;
+    ratio = Math.min(window.devicePixelRatio || 1, 1.6);
+    if (!canvas || !context) return;
+    canvas.width = Math.round(width * ratio);
+    canvas.height = Math.round(height * ratio);
+    canvas.style.width = `${width}px`;
+    canvas.style.height = `${height}px`;
+    context.setTransform(ratio, 0, 0, ratio, 0, 0);
+  };
+
+  const movePointer = (event) => {
+    target.x = event.clientX;
+    target.y = event.clientY;
+  };
+
+  const bendPoint = (x, y) => {
+    const deltaX = x - pointer.x;
+    const deltaY = y - pointer.y;
+    const distanceSquared = deltaX * deltaX + deltaY * deltaY;
+    const radius = Math.min(240, Math.max(150, width * .14));
+    const influence = Math.exp(-distanceSquared / (radius * radius));
+    const distance = Math.sqrt(distanceSquared) || 1;
+    const force = influence * 30;
+    return [x + deltaX / distance * force, y + deltaY / distance * force];
+  };
+
+  const drawGrid = () => {
+    if (!context) return;
+    context.clearRect(0, 0, width, height);
+    const spacing = width < 700 ? 34 : 46;
+    const step = 14;
+    context.lineWidth = 1;
+    context.strokeStyle = "rgba(216, 200, 168, 0.105)";
+
+    for (let x = -spacing; x <= width + spacing; x += spacing) {
+      context.beginPath();
+      for (let y = -step; y <= height + step; y += step) {
+        const [pointX, pointY] = bendPoint(x, y);
+        if (y === -step) context.moveTo(pointX, pointY);
+        else context.lineTo(pointX, pointY);
+      }
+      context.stroke();
+    }
+    for (let y = -spacing; y <= height + spacing; y += spacing) {
+      context.beginPath();
+      for (let x = -step; x <= width + step; x += step) {
+        const [pointX, pointY] = bendPoint(x, y);
+        if (x === -step) context.moveTo(pointX, pointY);
+        else context.lineTo(pointX, pointY);
+      }
+      context.stroke();
+    }
+  };
+
+  const finish = () => {
+    if (finished) return;
+    finished = true;
+    loader.classList.add("exiting");
+    try {
+      sessionStorage.setItem("weblo-loader-seen", "true");
+    } catch (error) {
+      // The loader can still finish when storage is unavailable.
+    }
+    window.removeEventListener("pointermove", movePointer);
+    window.removeEventListener("resize", resize);
+    window.removeEventListener("weblo:curtain-ready", markReady);
+    window.setTimeout(() => {
+      document.documentElement.classList.remove("loader-pending");
+      document.documentElement.classList.add("loader-bypassed");
+      loader.remove();
+      cancelAnimationFrame(frame);
+    }, 1400);
+  };
+
+  const markReady = () => {
+    curtainReady = true;
+    if (performance.now() - startedAt >= minimumDuration) finish();
+  };
+
+  const render = (time) => {
+    pointer.x += (target.x - pointer.x) * .12;
+    pointer.y += (target.y - pointer.y) * .12;
+    drawGrid();
+    if (glow) glow.style.transform = `translate3d(${pointer.x}px, ${pointer.y}px, 0) translate(-50%, -50%)`;
+    const elapsed = time - startedAt;
+    const progress = Math.min(100, elapsed / minimumDuration * 100);
+    loader.style.setProperty("--loader-progress", progress.toFixed(2));
+    if (count) count.textContent = String(Math.floor(progress)).padStart(2, "0");
+    if ((elapsed >= minimumDuration && curtainReady) || elapsed >= maximumDuration) finish();
+    if (!finished) frame = requestAnimationFrame(render);
+  };
+
+  resize();
+  window.addEventListener("pointermove", movePointer, { passive: true });
+  window.addEventListener("resize", resize, { passive: true });
+  window.addEventListener("weblo:curtain-ready", markReady, { once: true });
+  frame = requestAnimationFrame(render);
 }
 
 function initExperience() {
@@ -1710,7 +1843,13 @@ function initAssembly() {
 
 function initCurtainWebGL() {
   const canvas = document.querySelector("#curtain-canvas");
-  if (!canvas || !window.THREE) return;
+  if (!canvas) return;
+  if (!window.THREE) {
+    canvas.remove();
+    document.querySelector("[data-curtain-hero]")?.classList.add("curtain-fallback");
+    signalCurtainReady();
+    return;
+  }
 
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const compactDevice = window.matchMedia("(max-width: 760px)").matches;
@@ -1723,6 +1862,7 @@ function initCurtainWebGL() {
   } catch (error) {
     canvas.remove();
     document.querySelector("[data-curtain-hero]")?.classList.add("curtain-fallback");
+    signalCurtainReady();
     return;
   }
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, compactDevice ? 1.2 : 1.6));
@@ -1863,6 +2003,7 @@ function initCurtainWebGL() {
   let frame;
   let active = true;
   let currentOpen = reducedMotion ? 1 : 0;
+  let readySignaled = false;
   const render = () => {
     const elapsed = clock.getElapsedTime();
     const targetOpen = reducedMotion ? 1 : (window.webloCurtainProgress || 0);
@@ -1877,6 +2018,10 @@ function initCurtainWebGL() {
     dust.rotation.y = elapsed * .012;
     dust.position.y = Math.sin(elapsed * .16) * .12;
     renderer.render(scene, camera);
+    if (!readySignaled) {
+      readySignaled = true;
+      signalCurtainReady();
+    }
     if (!reducedMotion && active) frame = requestAnimationFrame(render);
   };
   render();
