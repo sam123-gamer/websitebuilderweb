@@ -22,7 +22,7 @@ export interface AdminNotificationProps {
 }
 
 export const getAdminNotificationSubject = (userName: string) =>
-  `Alert: New Form Submission from ${userName}`;
+  `New project enquiry by ${userName}`;
 
 const formatLabel = (key: string) =>
   key
