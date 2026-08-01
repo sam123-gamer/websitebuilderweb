@@ -27,6 +27,7 @@ interface Submission {
 }
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const CONTACT_EMAIL = "contact@theweblo.com";
 let resendClient: Resend | undefined;
 
 export const config = { maxDuration: 15 };
@@ -135,8 +136,6 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
     const submission = parseSubmission(input);
     const resend = getResend();
     const from = readRequiredEnv("RESEND_FROM_EMAIL");
-    const adminEmail = process.env.ADMIN_EMAIL?.trim() || "noreplyweblo@gmail.com";
-    const contactEmail = process.env.CONTACT_EMAIL?.trim() || "contact@theweblo.com";
     const siteUrl = process.env.SITE_URL?.trim() || "https://theweblo.com";
     const logoUrl = process.env.EMAIL_LOGO_URL?.trim() || `${siteUrl}/favicon.svg`;
 
@@ -144,18 +143,18 @@ export default async function handler(req: ApiRequest, res: ApiResponse) {
       resend.emails.send({
         from,
         to: submission.userEmail,
-        replyTo: contactEmail,
+        replyTo: CONTACT_EMAIL,
         subject: userConfirmationSubject,
         react: UserConfirmation({
           userName: submission.userName,
           siteUrl,
           logoUrl,
-          contactEmail,
+          contactEmail: CONTACT_EMAIL,
         }),
       }, { idempotencyKey: `weblo-confirmation/${submission.submissionId}` }),
       resend.emails.send({
         from,
-        to: adminEmail,
+        to: CONTACT_EMAIL,
         replyTo: submission.userEmail,
         subject: getAdminNotificationSubject(submission.userName),
         react: AdminNotification({ ...submission, logoUrl }),

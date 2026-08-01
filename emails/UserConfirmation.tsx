@@ -7,6 +7,7 @@ import {
   Hr,
   Html,
   Img,
+  Link,
   Preview,
   Section,
   Text,
@@ -69,8 +70,11 @@ export default function UserConfirmation({
             </Section>
             <Hr style={divider} />
             <Text style={supportText}>
-              Need to add something? Reply to this email or contact us at
-              {contactEmail}.
+              Need to add something? Contact us at{" "}
+              <Link href={`mailto:${contactEmail}`} style={supportLink}>
+                {contactEmail}
+              </Link>
+              .
             </Text>
           </Section>
 
@@ -152,6 +156,7 @@ const supportText = {
   fontSize: "14px",
   lineHeight: "22px",
 } as const;
+const supportLink = { color: "#4f46e5", textDecoration: "underline" } as const;
 
 const footer = {
   padding: "24px 32px",

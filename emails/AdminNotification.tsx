@@ -47,7 +47,7 @@ export default function AdminNotification({
       })),
     ),
     ...userAnswers.map((answer, index) => ({
-      label: `Answer ${index + 1}`,
+      label: index === 0 ? "Project brief" : `Additional answer ${index + 1}`,
       value: answer,
     })),
   ];
