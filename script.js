@@ -22,18 +22,6 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.classList.remove("menu-open");
   }));
 
-  const revealObserver = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add("visible");
-        revealObserver.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.12 });
-  document.querySelectorAll(".reveal").forEach((element) => revealObserver.observe(element));
-
-  initAssembly();
-
   const preview = document.querySelector(".work-preview");
   document.querySelectorAll(".work-row[data-art]").forEach((row) => {
     row.addEventListener("mouseenter", () => {
@@ -97,11 +85,23 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  initWebGL();
+  initCurtainWebGL();
   initExperience();
   initAmbientWebGL();
   initProjectStages();
+  initCursorSurfaces();
 });
+
+function initCursorSurfaces() {
+  if (window.matchMedia("(pointer: coarse), (prefers-reduced-motion: reduce)").matches) return;
+  document.querySelectorAll("[data-cursor-surface]").forEach((surface) => {
+    surface.addEventListener("pointermove", (event) => {
+      const rect = surface.getBoundingClientRect();
+      surface.style.setProperty("--cursor-x", `${event.clientX - rect.left}px`);
+      surface.style.setProperty("--cursor-y", `${event.clientY - rect.top}px`);
+    }, { passive: true });
+  });
+}
 
 function initExperience() {
   const enterButton = document.querySelector("[data-enter-experience]");
@@ -1431,11 +1431,11 @@ function initAmbientWebGL() {
 
   const pageName = location.pathname.split("/").pop() || "index.html";
   const pagePalettes = {
-    "index.html": [0x235cff, 0xb8f5dc, 0xff6b4a],
-    "work.html": [0xff6b4a, 0x235cff, 0xb8f5dc],
-    "pricing.html": [0xb8f5dc, 0xc6b7ff, 0x235cff],
-    "about.html": [0xc6b7ff, 0xff6b4a, 0xb8f5dc],
-    "contact.html": [0xff7a3d, 0xb8f5dc, 0x235cff]
+    "index.html": [0x4169d8, 0xd8c8a8, 0xc9784a],
+    "work.html": [0xc9784a, 0x4169d8, 0xd8c8a8],
+    "pricing.html": [0xd8c8a8, 0xaebbd2, 0x4169d8],
+    "about.html": [0xaebbd2, 0xc9784a, 0xd8c8a8],
+    "contact.html": [0xd89a63, 0xd8c8a8, 0x4169d8]
   };
   const palette = pagePalettes[pageName] || pagePalettes["index.html"];
 
@@ -1466,7 +1466,7 @@ function initAmbientWebGL() {
 
   const teamOrbit = new THREE.Group();
   const teamNodeGeometry = new THREE.SphereGeometry(compactDevice ? .11 : .14, 10, 8);
-  const teamNodes = [palette[2], palette[1], 0xc6b7ff, palette[0]].map((color) => {
+  const teamNodes = [palette[2], palette[1], 0xaebbd2, palette[0]].map((color) => {
     const node = new THREE.Mesh(teamNodeGeometry, new THREE.MeshBasicMaterial({ color }));
     teamOrbit.add(node);
     return node;
@@ -1611,7 +1611,7 @@ function initAssembly() {
   let placed = 0;
 
   try {
-    if (sessionStorage.getItem("placeholder-assembly-complete") === "true") {
+    if (sessionStorage.getItem("weblo-assembly-complete") === "true") {
       blocks.forEach((block) => block.classList.add("placed"));
       assembly.classList.add("complete");
       assembly.closest(".hero").classList.add("assembled", "session-complete");
@@ -1633,7 +1633,7 @@ function initAssembly() {
       assembly.classList.add("complete");
       assembly.closest(".hero").classList.add("assembled");
       try {
-        sessionStorage.setItem("placeholder-assembly-complete", "true");
+        sessionStorage.setItem("weblo-assembly-complete", "true");
       } catch (error) {
         // The completed state still works for the current page without storage.
       }
@@ -1706,6 +1706,195 @@ function initAssembly() {
   };
   updateHandoff();
   window.addEventListener("scroll", updateHandoff, { passive: true });
+}
+
+function initCurtainWebGL() {
+  const canvas = document.querySelector("#curtain-canvas");
+  if (!canvas || !window.THREE) return;
+
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const compactDevice = window.matchMedia("(max-width: 760px)").matches;
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(compactDevice ? 48 : 43, 1, .1, 50);
+  camera.position.set(0, 0, compactDevice ? 7.8 : 7.2);
+  let renderer;
+  try {
+    renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: !compactDevice, powerPreference: "high-performance" });
+  } catch (error) {
+    canvas.remove();
+    document.querySelector("[data-curtain-hero]")?.classList.add("curtain-fallback");
+    return;
+  }
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, compactDevice ? 1.2 : 1.6));
+  renderer.outputEncoding = THREE.sRGBEncoding;
+
+  const vertexShader = `
+    uniform float uTime;
+    uniform float uOpen;
+    uniform float uSide;
+    uniform float uTravel;
+    uniform vec2 uPointer;
+    varying vec2 vUv;
+    varying float vFold;
+    varying vec3 vViewPosition;
+    void main() {
+      vUv = uv;
+      vec3 p = position;
+      float opened = uOpen * uOpen * (3.0 - 2.0 * uOpen);
+      float inner = uSide < 0.0 ? uv.x : 1.0 - uv.x;
+      float innerPull = pow(inner, 1.65);
+      float foldPhase = uv.x * (56.5487 + opened * 8.0) + uSide * 0.7;
+      float fold = sin(foldPhase);
+      float gather = 0.19 + (1.0 - opened) * 0.12;
+      p.z += fold * gather * (0.82 + 0.18 * cos(uv.y * 3.14159));
+      p.z += sin(uTime * 0.48 + uv.y * 3.4 + uv.x * 2.0) * 0.018 * (1.0 - opened * 0.7);
+      p.z += innerPull * opened * sin(uv.y * 3.14159) * 0.22;
+      float pointerY = uPointer.y * 0.5 + 0.5;
+      float pointerPressure = exp(-pow(uv.y - pointerY, 2.0) * 22.0) * inner;
+      p.z += uPointer.x * uSide * pointerPressure * 0.085 * (1.0 - opened * 0.72);
+      p.y += uPointer.y * inner * sin(uv.y * 3.14159) * 0.025 * (1.0 - opened);
+      p.x += uSide * opened * (0.35 + innerPull * uTravel);
+      p.x += uSide * sin(uv.y * 3.14159) * 0.11 * (1.0 - inner) * (1.0 - opened);
+      p.y += opened * innerPull * sin(uv.y * 3.14159) * 0.075;
+      p.y -= (1.0 - uv.y) * (1.0 - uv.y) * 0.12;
+      p.y -= abs(fold) * 0.035 * (1.0 - uv.y);
+      vFold = fold;
+      vec4 viewPosition = modelViewMatrix * vec4(p, 1.0);
+      vViewPosition = viewPosition.xyz;
+      gl_Position = projectionMatrix * viewPosition;
+    }
+  `;
+  const fragmentShader = `
+    uniform float uOpen;
+    uniform float uSide;
+    varying vec2 vUv;
+    varying float vFold;
+    varying vec3 vViewPosition;
+    void main() {
+      vec3 midnight = vec3(0.012, 0.03, 0.07);
+      vec3 navy = vec3(0.055, 0.16, 0.3);
+      vec3 copper = vec3(0.55, 0.26, 0.11);
+      float ridge = 0.5 + 0.5 * vFold;
+      float broadLight = smoothstep(0.0, 1.0, ridge) * 0.72;
+      float topLight = 0.18 + vUv.y * 0.2;
+      float weave = sin(vUv.x * 1100.0) * sin(vUv.y * 820.0) * 0.018;
+      float inner = uSide < 0.0 ? vUv.x : 1.0 - vUv.x;
+      float edgeShadow = 1.0 - smoothstep(0.92, 1.0, inner) * (1.0 - uOpen) * 0.5;
+      vec3 color = mix(midnight, navy, broadLight + topLight) * edgeShadow;
+      vec3 normal = normalize(cross(dFdx(vViewPosition), dFdy(vViewPosition)));
+      vec3 lightDirection = normalize(vec3(-uSide * 0.28, 0.48, 1.0));
+      float clothLight = 0.42 + abs(dot(normal, lightDirection)) * 0.58;
+      float grazingSheen = pow(1.0 - min(1.0, abs(normal.z)), 2.0);
+      color *= clothLight;
+      color += weave;
+      float velvetSheen = pow(max(0.0, ridge), 9.0) * (0.12 + vUv.y * 0.1);
+      color += vec3(0.16, 0.2, 0.27) * velvetSheen;
+      color += vec3(0.16, 0.2, 0.28) * grazingSheen * 0.12;
+      color += copper * smoothstep(0.72, 1.0, inner) * (0.025 + uOpen * 0.055) * ridge;
+      color *= 1.0 - (1.0 - smoothstep(0.0, 0.035, vUv.y)) * 0.35;
+      color *= 0.9 + smoothstep(0.0, .12, vUv.y) * 0.1;
+      gl_FragColor = vec4(color, 1.0);
+    }
+  `;
+
+  const curtainGroup = new THREE.Group();
+  const panelGeometry = new THREE.PlaneGeometry(compactDevice ? 6.2 : 7.5, 9.2, compactDevice ? 48 : 80, compactDevice ? 42 : 72);
+  const panels = [-1, 1].map((side) => {
+    const material = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 },
+        uOpen: { value: reducedMotion ? 1 : 0 },
+        uSide: { value: side },
+        uTravel: { value: compactDevice ? 2.2 : 5.15 },
+        uPointer: { value: new THREE.Vector2() }
+      },
+      vertexShader,
+      fragmentShader,
+      extensions: { derivatives: true },
+      side: THREE.DoubleSide
+    });
+    const panel = new THREE.Mesh(panelGeometry, material);
+    panel.position.x = side * (compactDevice ? 3.1 : 3.75);
+    panel.position.y = -.15;
+    curtainGroup.add(panel);
+    return panel;
+  });
+  scene.add(curtainGroup);
+
+  const rod = new THREE.Mesh(
+    new THREE.CylinderGeometry(.055, .065, compactDevice ? 13 : 16, 18),
+    new THREE.MeshBasicMaterial({ color: 0x93846d })
+  );
+  rod.rotation.z = Math.PI / 2;
+  rod.position.set(0, 2.82, .35);
+  scene.add(rod);
+
+  const dustCount = compactDevice ? 70 : 150;
+  const dustPositions = new Float32Array(dustCount * 3);
+  for (let index = 0; index < dustCount; index += 1) {
+    dustPositions[index * 3] = (Math.random() - .5) * 11;
+    dustPositions[index * 3 + 1] = (Math.random() - .5) * 6.5;
+    dustPositions[index * 3 + 2] = Math.random() * 2.3 + .3;
+  }
+  const dustGeometry = new THREE.BufferGeometry();
+  dustGeometry.setAttribute("position", new THREE.BufferAttribute(dustPositions, 3));
+  const dust = new THREE.Points(
+    dustGeometry,
+    new THREE.PointsMaterial({ color: 0xe6d3ad, size: compactDevice ? .018 : .024, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending })
+  );
+  scene.add(dust);
+
+  const pointer = new THREE.Vector2();
+  window.addEventListener("pointermove", (event) => {
+    pointer.set(event.clientX / window.innerWidth * 2 - 1, -(event.clientY / window.innerHeight * 2 - 1));
+  }, { passive: true });
+
+  const resize = () => {
+    const width = canvas.clientWidth;
+    const height = canvas.clientHeight;
+    renderer.setSize(width, height, false);
+    camera.aspect = width / Math.max(1, height);
+    camera.updateProjectionMatrix();
+  };
+  resize();
+  window.addEventListener("resize", resize, { passive: true });
+
+  const clock = new THREE.Clock();
+  let frame;
+  let active = true;
+  let currentOpen = reducedMotion ? 1 : 0;
+  const render = () => {
+    const elapsed = clock.getElapsedTime();
+    const targetOpen = reducedMotion ? 1 : (window.webloCurtainProgress || 0);
+    currentOpen += (targetOpen - currentOpen) * .09;
+    panels.forEach((panel) => {
+      panel.material.uniforms.uTime.value = elapsed;
+      panel.material.uniforms.uOpen.value = currentOpen;
+      panel.material.uniforms.uPointer.value.lerp(pointer, .035);
+    });
+    rod.position.y = 2.82 + Math.sin(elapsed * .35) * .002;
+    dust.material.opacity = .025 + currentOpen * .32;
+    dust.rotation.y = elapsed * .012;
+    dust.position.y = Math.sin(elapsed * .16) * .12;
+    renderer.render(scene, camera);
+    if (!reducedMotion && active) frame = requestAnimationFrame(render);
+  };
+  render();
+
+  const heroObserver = new IntersectionObserver(([entry]) => {
+    if (reducedMotion) return;
+    const nextActive = entry.isIntersecting;
+    if (nextActive === active) return;
+    active = nextActive;
+    if (active) render();
+    else cancelAnimationFrame(frame);
+  }, { threshold: 0 });
+  heroObserver.observe(canvas.closest(".curtain-hero"));
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) cancelAnimationFrame(frame);
+    else if (!reducedMotion && active) render();
+  });
 }
 
 function initWebGL() {
