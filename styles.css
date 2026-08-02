@@ -701,6 +701,12 @@ main > .section + .section { border-top: 1px solid rgba(216,200,168,.14); }
 .tag { font-family: var(--mono); font-size: .62rem; letter-spacing: .1em; text-transform: uppercase; color: var(--mint); }
 
 .pricing-shell { width: min(1344px, calc(100% - 48px)); margin: 0 auto 130px; }
+.free-sample-banner { margin-bottom: 24px; padding: clamp(2rem, 4vw, 3.5rem); display: flex; align-items: center; justify-content: space-between; gap: clamp(1.5rem, 4vw, 4rem); border: 1px solid rgba(216,200,168,.32); border-radius: 24px; color: var(--ink); background: linear-gradient(135deg, #f1e9dc, var(--mint) 62%, #c7ad83); box-shadow: 0 30px 80px rgba(0,0,0,.22); }
+.free-sample-copy { max-width: 680px; }
+.free-sample-copy .section-label { color: var(--coral); }
+.free-sample-copy h2 { margin: .7rem 0 .55rem; font-family: var(--display); font-size: clamp(1.9rem, 3.4vw, 3.2rem); line-height: 1; letter-spacing: -.045em; }
+.free-sample-copy p { margin: 0; max-width: 560px; color: rgba(7,10,16,.68); font-size: 1rem; line-height: 1.65; }
+.free-sample-banner .button { white-space: nowrap; }
 .pricing-grid { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--line); border-radius: 24px; overflow: hidden; box-shadow: 0 35px 90px rgba(0,0,0,.2); }
 .price-card { min-height: 620px; padding: 2rem; border-right: 1px solid var(--line); background: rgba(255,255,255,.018); display: flex; flex-direction: column; }
 .price-card.featured { color: var(--ink); background: var(--paper); box-shadow: inset 0 5px var(--orange); }
@@ -839,6 +845,8 @@ main > .section + .section { border-top: 1px solid rgba(216,200,168,.14); }
   .map-card { border-bottom: 1px solid var(--line); }
   .section-heading { grid-template-columns: 1fr; }
   .service-grid, .pricing-grid { grid-template-columns: 1fr; }
+  .free-sample-banner { flex-direction: column; align-items: flex-start; }
+  .free-sample-banner .button { width: max-content; }
   .custom-price-card { grid-template-columns: 1fr; }
   .custom-price-card .button { width: max-content; }
   .service { min-height: 280px; border-right: 0; border-bottom: 1px solid var(--line); }
@@ -902,6 +910,7 @@ main > .section + .section { border-top: 1px solid rgba(216,200,168,.14); }
   .case-card:nth-child(even) { margin-top: 0; }
   .pricing-note { grid-template-columns: 1fr; }
   .custom-price-card .button { width: 100%; white-space: normal; }
+  .free-sample-banner .button { width: 100%; white-space: normal; }
   .field.full, .form-actions { grid-column: auto; }
   .form-actions { align-items: stretch; flex-direction: column; }
   .contact-layout { gap: 2.5rem; margin-bottom: 80px; }
