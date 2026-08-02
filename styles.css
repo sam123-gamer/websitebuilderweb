@@ -701,12 +701,14 @@ main > .section + .section { border-top: 1px solid rgba(216,200,168,.14); }
 .tag { font-family: var(--mono); font-size: .62rem; letter-spacing: .1em; text-transform: uppercase; color: var(--mint); }
 
 .pricing-shell { width: min(1344px, calc(100% - 48px)); margin: 0 auto 130px; }
-.pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--line); border-radius: 24px; overflow: hidden; box-shadow: 0 35px 90px rgba(0,0,0,.2); }
+.pricing-grid { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--line); border-radius: 24px; overflow: hidden; box-shadow: 0 35px 90px rgba(0,0,0,.2); }
 .price-card { min-height: 620px; padding: 2rem; border-right: 1px solid var(--line); background: rgba(255,255,255,.018); display: flex; flex-direction: column; }
 .price-card.featured { color: var(--ink); background: var(--paper); box-shadow: inset 0 5px var(--orange); }
 .price-type { display: flex; justify-content: space-between; font-family: var(--mono); font-size: .64rem; letter-spacing: .1em; text-transform: uppercase; }
 .price { margin: 4rem 0 .5rem; font-family: var(--display); font-size: clamp(3rem, 5vw, 5.5rem); letter-spacing: -.07em; }
 .price-currency { margin-right: .08em; font-family: var(--body); font-size: .48em; font-weight: 600; vertical-align: .55em; }
+.price-custom { font-size: clamp(1.5rem, 2.1vw, 2.35rem); letter-spacing: -.04em; line-height: 1; }
+.price-card.custom .price-note { color: var(--orange); }
 .price-note { min-height: 3rem; color: #8b8b8d; font-size: .8rem; }
 .price-card h2 { margin: 2.5rem 0 1rem; font-family: var(--display); font-size: 1.8rem; }
 .feature-list { padding: 0; margin: 0 0 2.5rem; list-style: none; }
@@ -812,6 +814,11 @@ main > .section + .section { border-top: 1px solid rgba(216,200,168,.14); }
 .reveal { opacity: 0; transform: translateY(28px); transition: opacity .7s ease, transform .7s cubic-bezier(.2,.7,.2,1); }
 .reveal.visible { opacity: 1; transform: none; }
 :focus-visible { outline: 2px solid var(--orange); outline-offset: 4px; }
+
+@media (min-width: 901px) and (max-width: 1120px) {
+  .pricing-grid { grid-template-columns: repeat(2, 1fr); }
+  .price-card:nth-child(n + 3) { border-top: 1px solid var(--line); }
+}
 
 @media (max-width: 900px) {
   .nav-shell { grid-template-columns: 1fr auto; }
