@@ -713,7 +713,7 @@ main > .section + .section { border-top: 1px solid rgba(216,200,168,.14); }
 .price-type { display: flex; justify-content: space-between; font-family: var(--mono); font-size: .64rem; letter-spacing: .1em; text-transform: uppercase; }
 .price { margin: 4rem 0 .5rem; font-family: var(--display); font-size: clamp(3rem, 5vw, 5.5rem); letter-spacing: -.07em; }
 .price-currency { margin-right: .08em; font-family: var(--body); font-size: .48em; font-weight: 600; vertical-align: .55em; }
-.price-custom { font-size: clamp(1.5rem, 2.1vw, 2.35rem); letter-spacing: -.04em; line-height: 1; }
+.price-custom { font-size: clamp(2rem, 3vw, 3.2rem); letter-spacing: -.04em; line-height: 1; }
 .price-card.custom .price-note { color: var(--orange); }
 .price-note { min-height: 3rem; color: #8b8b8d; font-size: .8rem; }
 .price-card h2 { margin: 2.5rem 0 1rem; font-family: var(--display); font-size: 1.8rem; }
