@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const form = document.querySelector("[data-contact-form]");
   const requestedPackage = new URLSearchParams(window.location.search).get("package");
   if (form && requestedPackage) {
-    const packageBudgets = { foundation: "INR 15,000", signature: "INR 29,000", worldbuild: "INR 50,000", custom: "Custom pricing", "free-sample": "Free — sample homepage" };
+    const packageBudgets = { foundation: "INR 15,000", signature: "INR 29,000", worldbuild: "INR 49,000", custom: "Custom pricing", "free-sample": "Free — sample homepage" };
     const budget = form.querySelector("[name='budget']");
     if (packageBudgets[requestedPackage]) budget.value = packageBudgets[requestedPackage];
   }
