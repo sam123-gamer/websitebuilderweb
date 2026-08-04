@@ -966,7 +966,7 @@ main > .section + .section { border-top: 1px solid rgba(216,200,168,.14); }
 .curtain-hero {
   --curtain-progress: 0;
   position: relative;
-  height: 190svh;
+  height: 290svh;
   min-height: 0;
   display: block;
   padding: 0;
@@ -989,6 +989,14 @@ main > .home-section + .home-section { border-top: 1px solid var(--line); }
 .home-section .work-row { padding-inline: 1.1rem; }
 .home-section .work-row:last-child { border-bottom: 0; }
 .home-marquee { width: min(1344px, calc(100% - 48px)); margin: 0 auto clamp(54px, 7vw, 96px); border: 1px solid rgba(216,200,168,.2); border-radius: 999px; }
+.home-cover-panel {
+  z-index: 4;
+  min-height: calc(100svh - 24px);
+  margin: calc(-100svh + 12px) auto clamp(54px, 7vw, 96px);
+  box-shadow: 0 -28px 100px rgba(0,0,0,.48), inset 0 1px 0 rgba(255,255,255,.055);
+  transform-origin: center bottom;
+  will-change: transform, border-radius;
+}
 [data-cursor-surface] { --cursor-x: 50%; --cursor-y: 50%; }
 .map-card, .service { position: relative; isolation: isolate; overflow: hidden; }
 .map-card::before, .service::before {
@@ -1149,8 +1157,9 @@ main > .home-section + .home-section { border-top: 1px solid var(--line); }
 .curtain-fallback #curtain-canvas { display: none; }
 
 @media (max-width: 760px) {
-  .curtain-hero { height: 170svh; }
+  .curtain-hero { height: 270svh; }
   .curtain-stage { min-height: 0; }
+  .home-cover-panel { min-height: calc(100svh - 12px); margin-top: calc(-100svh + 6px); }
   .home-section { width: calc(100% - 24px); margin-block: 42px; padding: 54px 16px; border-radius: 26px; }
   .home-marquee { width: calc(100% - 24px); margin-bottom: 42px; }
   .curtain-hero-copy { width: calc(100% - 32px); padding: 104px 0 28px; }
@@ -1209,6 +1218,7 @@ main > .home-section + .home-section { border-top: 1px solid var(--line); }
   .motion-scroll-progress { display: none; }
   #hero-canvas { opacity: .55; }
   .curtain-hero { height: 100svh; }
+  .home-cover-panel { min-height: 0; margin: 56px auto; transform: none !important; }
   .curtain-hero-copy, .hero-proof > div { opacity: 1 !important; transform: none !important; pointer-events: auto; }
   .curtain-frontmatter, .curtain-scroll-cue { display: none; }
 }

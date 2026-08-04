@@ -1,6 +1,7 @@
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const revealElements = [...document.querySelectorAll(".reveal")];
 const curtainHero = document.querySelector("[data-curtain-hero]");
+const homeCoverPanel = document.querySelector("[data-home-cover]");
 
 const setCurtainProgress = (progress) => {
   if (!curtainHero) return;
@@ -39,6 +40,9 @@ if (reducedMotion) {
 } else {
   try {
     const { animate, inView, scroll } = await import("https://cdn.jsdelivr.net/npm/framer-motion@12.23.12/dom/+esm");
+    const animeModule = homeCoverPanel
+      ? await import("https://cdn.jsdelivr.net/npm/animejs@4.1.3/+esm")
+      : null;
     document.documentElement.classList.add("framer-motion-ready");
 
     const progress = document.createElement("div");
@@ -50,11 +54,31 @@ if (reducedMotion) {
     });
     if (curtainHero) {
       setCurtainProgress(0);
-      scroll(setCurtainProgress, { target: curtainHero, offset: ["start start", "end end"] });
+      scroll((value) => {
+        const totalRunway = Math.max(1, curtainHero.offsetHeight - window.innerHeight);
+        const drawRunway = window.innerHeight * (window.innerWidth <= 760 ? .7 : .9);
+        setCurtainProgress(value * totalRunway / drawRunway);
+      }, { target: curtainHero, offset: ["start start", "end end"] });
+    }
+
+    if (curtainHero && homeCoverPanel) {
+      const stage = curtainHero.querySelector(".curtain-stage");
+      const panelAnimation = animate(homeCoverPanel, {
+        transform: ["translateY(8svh) scale(.985)", "translateY(0) scale(1)"],
+        borderRadius: ["40px", "24px"]
+      }, { ease: "linear" });
+      scroll(panelAnimation, { target: homeCoverPanel, offset: ["start end", "start start"] });
+
+      if (stage) {
+        const depthAnimation = animate(stage, {
+          transform: ["scale(1)", "scale(.955)"],
+          filter: ["brightness(1)", "brightness(.68)"]
+        }, { ease: "linear" });
+        scroll(depthAnimation, { target: homeCoverPanel, offset: ["start end", "start start"] });
+      }
     }
 
     const staggerGroups = [
-      [".section-map", ".map-card"],
       [".work-list", ".work-row"],
       [".service-grid", ".service"],
       [".pricing-grid", ".price-card"],
@@ -63,6 +87,28 @@ if (reducedMotion) {
       [".contact-details", ":scope > div"]
     ];
     const staggeredItems = new Set();
+
+    if (homeCoverPanel && animeModule) {
+      const cards = [...homeCoverPanel.querySelectorAll(".map-card")];
+      cards.forEach((card) => {
+        staggeredItems.add(card);
+        card.style.opacity = "0";
+        card.style.transform = "translateY(42px) scale(.98)";
+      });
+      let cardsAnimated = false;
+      inView(homeCoverPanel, () => {
+        if (cardsAnimated) return;
+        cardsAnimated = true;
+        animeModule.animate(cards, {
+          opacity: [0, 1],
+          translateY: [42, 0],
+          scale: [.98, 1],
+          delay: animeModule.stagger(90),
+          duration: 760,
+          ease: "out(4)"
+        });
+      }, { amount: .18 });
+    }
 
     staggerGroups.forEach(([groupSelector, itemSelector]) => {
       document.querySelectorAll(groupSelector).forEach((group) => {
