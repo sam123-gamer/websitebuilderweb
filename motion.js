@@ -64,8 +64,7 @@ if (reducedMotion) {
     if (curtainHero && homeCoverPanel) {
       const stage = curtainHero.querySelector(".curtain-stage");
       const panelAnimation = animate(homeCoverPanel, {
-        transform: ["translateY(8svh) scale(.985)", "translateY(0) scale(1)"],
-        borderRadius: ["40px", "24px"]
+        transform: ["translateY(8svh)", "translateY(0)"]
       }, { ease: "linear" });
       scroll(panelAnimation, { target: homeCoverPanel, offset: ["start end", "start start"] });
 
