@@ -766,6 +766,9 @@ main > .section + .section { border-top: 1px solid rgba(216,200,168,.14); }
 }
 .founder-visual {
   position: relative;
+  width: auto;
+  height: 100%;
+  justify-self: center;
   aspect-ratio: 1;
   overflow: hidden;
   color: var(--ink);
@@ -856,7 +859,7 @@ main > .section + .section { border-top: 1px solid rgba(216,200,168,.14); }
   .case-card:nth-child(even) { margin-top: 70px; }
   .contact-layout { grid-template-columns: 1fr; }
   .founder-layout { grid-template-columns: 1fr; }
-  .founder-visual { width: min(560px, 100%); }
+  .founder-visual { width: min(560px, 100%); height: auto; }
   .team-grid { grid-template-columns: 1fr; }
   .team-card { min-height: 280px; flex-direction: row; align-items: center; border-right: 0; border-bottom: 1px solid var(--line); }
   .team-card:last-child { border-bottom: 0; }
