@@ -6,7 +6,8 @@
   <meta name="description" content="weblo designs and develops distinctive interactive websites and digital platforms.">
   <title>weblo | Distinctive websites and digital platforms</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <script>try{const loaderMode=new URLSearchParams(location.search).get("loader");const skipLoader=loaderMode==="0";const forceLoader=loaderMode==="1";document.documentElement.classList.add(skipLoader||(!forceLoader&&sessionStorage.getItem("weblo-loader-seen")==="true")?"loader-bypassed":"loader-pending")}catch(e){document.documentElement.classList.add("loader-pending")}</script>
+  <script>document.documentElement.classList.add("home-content-locked");try{const loaderMode=new URLSearchParams(location.search).get("loader");const skipLoader=loaderMode==="0";const forceLoader=loaderMode==="1";document.documentElement.classList.add(skipLoader||(!forceLoader&&sessionStorage.getItem("weblo-loader-seen")==="true")?"loader-bypassed":"loader-pending")}catch(e){document.documentElement.classList.add("loader-pending")}</script>
+  <noscript><style>.home-content-locked [data-activated-content]{display:block!important}.home-content-locked .site-footer[data-activated-content]{display:grid!important}</style></noscript>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&family=Syne:wght@500;600;700;800&display=swap" rel="stylesheet">
@@ -65,9 +66,9 @@
       <a class="cover-activate" href="#work-title" data-cover-activate><small>Continue into the work</small><strong>Activate</strong><span aria-hidden="true">&#8595;</span></a>
     </section>
 
-    <div class="marquee home-marquee" aria-hidden="true"><div class="marquee-track"><div class="marquee-group"><span>Creative direction</span><span>WebGL</span><span>Digital strategy</span><span>Development</span><span>Motion design</span><span>3D production</span></div><div class="marquee-group"><span>Creative direction</span><span>WebGL</span><span>Digital strategy</span><span>Development</span><span>Motion design</span><span>3D production</span></div><div class="marquee-group"><span>Creative direction</span><span>WebGL</span><span>Digital strategy</span><span>Development</span><span>Motion design</span><span>3D production</span></div><div class="marquee-group"><span>Creative direction</span><span>WebGL</span><span>Digital strategy</span><span>Development</span><span>Motion design</span><span>3D production</span></div></div></div>
+    <div class="marquee home-marquee" aria-hidden="true" data-activated-content><div class="marquee-track"><div class="marquee-group"><span>Creative direction</span><span>WebGL</span><span>Digital strategy</span><span>Development</span><span>Motion design</span><span>3D production</span></div><div class="marquee-group"><span>Creative direction</span><span>WebGL</span><span>Digital strategy</span><span>Development</span><span>Motion design</span><span>3D production</span></div><div class="marquee-group"><span>Creative direction</span><span>WebGL</span><span>Digital strategy</span><span>Development</span><span>Motion design</span><span>3D production</span></div><div class="marquee-group"><span>Creative direction</span><span>WebGL</span><span>Digital strategy</span><span>Development</span><span>Motion design</span><span>3D production</span></div></div></div>
 
-    <section class="section home-section home-surface" aria-labelledby="work-title" data-cursor-surface>
+    <section class="section home-section home-surface" aria-labelledby="work-title" data-activated-content data-cursor-surface>
       <div class="section-heading reveal"><span class="section-label">Selected projects / 2024-26</span><h2 id="work-title">Made to be <em>used.</em><br>Built to be remembered.</h2></div>
       <div class="work-list reveal">
         <a class="work-row" href="work.html#ai-summit" data-art="art-summit"><span class="work-number">01</span><h3>VSA AI Summit</h3><div class="work-meta"><span>Event</span><span>Education</span></div></a>
@@ -78,7 +79,7 @@
       <div class="work-preview" aria-hidden="true"><div class="project-art art-summit"></div></div>
     </section>
 
-    <section class="section home-section home-surface" aria-labelledby="services-title" data-cursor-surface>
+    <section class="section home-section home-surface" aria-labelledby="services-title" data-activated-content data-cursor-surface>
       <div class="section-heading reveal"><span class="section-label">One studio / Full journey</span><h2 id="services-title">From the first idea to a polished launch.</h2></div>
       <div class="service-grid reveal">
         <article class="service" data-cursor-surface><span class="service-code">S_01 / Direction</span><h3>Find the idea</h3><p>We define the audience, structure, and visual direction before design begins.</p></article>
@@ -87,9 +88,9 @@
       </div>
     </section>
 
-    <div class="cta-wrap reveal"><section class="cta-panel"><p class="eyebrow">Have an idea in mind?</p><h2>Let's turn it into something people can use.</h2><a class="button dark" href="contact.html">Tell us about it <span class="button-arrow">&#8599;</span></a></section></div>
+    <div class="cta-wrap reveal" data-activated-content><section class="cta-panel"><p class="eyebrow">Have an idea in mind?</p><h2>Let's turn it into something people can use.</h2><a class="button dark" href="contact.html">Tell us about it <span class="button-arrow">&#8599;</span></a></section></div>
   </main>
 
-  <footer class="site-footer"><div><a class="brand" href="index.html"><span class="brand-mark"></span>weblo</a><p class="footer-lead">Distinctive websites, thoughtfully designed and built.</p></div><nav class="footer-nav" aria-label="Footer"><a href="work.html">Work</a><a href="pricing.html">Pricing</a><a href="about.html">About</a><a href="contact.html">Contact</a></nav><div class="footer-meta"><span>Designed and Built by Sammit Basu</span></div></footer>
+  <footer class="site-footer" data-activated-content><div><a class="brand" href="index.html"><span class="brand-mark"></span>weblo</a><p class="footer-lead">Distinctive websites, thoughtfully designed and built.</p></div><nav class="footer-nav" aria-label="Footer"><a href="work.html">Work</a><a href="pricing.html">Pricing</a><a href="about.html">About</a><a href="contact.html">Contact</a></nav><div class="footer-meta"><span>Designed and Built by Sammit Basu</span></div></footer>
 </body>
 </html>

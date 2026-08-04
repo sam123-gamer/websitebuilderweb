@@ -2,6 +2,13 @@ const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matc
 const revealElements = [...document.querySelectorAll(".reveal")];
 const curtainHero = document.querySelector("[data-curtain-hero]");
 const homeCoverPanel = document.querySelector("[data-home-cover]");
+const coverActivateButton = document.querySelector("[data-cover-activate]");
+
+const unlockHomeContent = () => {
+  document.documentElement.classList.remove("home-content-locked");
+};
+
+coverActivateButton?.addEventListener("click", unlockHomeContent);
 
 const setCurtainProgress = (progress) => {
   if (!curtainHero) return;
@@ -89,7 +96,7 @@ if (reducedMotion) {
 
     if (homeCoverPanel && animeModule) {
       const cards = [...homeCoverPanel.querySelectorAll(".map-card")];
-      const activateButton = homeCoverPanel.querySelector("[data-cover-activate]");
+      const activateButton = coverActivateButton;
       const panelItems = activateButton ? [...cards, activateButton] : cards;
       panelItems.forEach((item) => {
         staggeredItems.add(item);

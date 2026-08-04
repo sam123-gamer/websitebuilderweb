@@ -26,6 +26,7 @@ body {
 }
 body.menu-open { overflow: hidden; }
 html.loader-pending, html.loader-pending body { overflow: hidden; }
+.home-content-locked [data-activated-content] { display: none !important; }
 .site-loader {
   --loader-progress: 0;
   position: fixed;
