@@ -89,16 +89,18 @@ if (reducedMotion) {
 
     if (homeCoverPanel && animeModule) {
       const cards = [...homeCoverPanel.querySelectorAll(".map-card")];
-      cards.forEach((card) => {
-        staggeredItems.add(card);
-        card.style.opacity = "0";
-        card.style.transform = "translateY(42px) scale(.98)";
+      const activateButton = homeCoverPanel.querySelector("[data-cover-activate]");
+      const panelItems = activateButton ? [...cards, activateButton] : cards;
+      panelItems.forEach((item) => {
+        staggeredItems.add(item);
+        item.style.opacity = "0";
+        item.style.transform = "translateY(42px) scale(.98)";
       });
       let cardsAnimated = false;
       inView(homeCoverPanel, () => {
         if (cardsAnimated) return;
         cardsAnimated = true;
-        animeModule.animate(cards, {
+        animeModule.animate(panelItems, {
           opacity: [0, 1],
           translateY: [42, 0],
           scale: [.98, 1],
@@ -107,6 +109,43 @@ if (reducedMotion) {
           ease: "out(4)"
         });
       }, { amount: .18 });
+
+      activateButton?.addEventListener("click", (event) => {
+        const destination = document.querySelector(".home-section");
+        if (!destination || activateButton.classList.contains("activating")) return;
+        event.preventDefault();
+        activateButton.classList.add("activating");
+
+        const whoosh = document.createElement("div");
+        whoosh.className = "cover-whoosh";
+        whoosh.setAttribute("aria-hidden", "true");
+        whoosh.innerHTML = Array.from({ length: 7 }, (_, index) => `<span style="--whoosh-index:${index}"></span>`).join("");
+        document.body.append(whoosh);
+        animeModule.animate([...whoosh.children], {
+          opacity: [0, 1, 0],
+          translateY: [0, "165vh"],
+          scaleY: [.25, 1.2],
+          delay: animeModule.stagger(42),
+          duration: 680,
+          ease: "in(3)",
+          onComplete: () => whoosh.remove()
+        });
+
+        const start = window.scrollY;
+        const target = destination.getBoundingClientRect().top + start - 88;
+        const previousScrollBehavior = document.documentElement.style.scrollBehavior;
+        document.documentElement.style.scrollBehavior = "auto";
+        animate(start, target, {
+          duration: 1.05,
+          delay: .08,
+          ease: [.76, 0, .24, 1],
+          onUpdate: (value) => window.scrollTo(0, value),
+          onComplete: () => {
+            document.documentElement.style.scrollBehavior = previousScrollBehavior;
+            activateButton.classList.remove("activating");
+          }
+        });
+      });
     }
 
     staggerGroups.forEach(([groupSelector, itemSelector]) => {
