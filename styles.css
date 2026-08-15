@@ -707,6 +707,10 @@ main > .section + .section { border-top: 1px solid rgba(216,200,168,.14); }
 .free-sample-copy h2 { margin: .7rem 0 .55rem; font-family: var(--display); font-size: clamp(1.9rem, 3.4vw, 3.2rem); line-height: 1; letter-spacing: -.045em; }
 .free-sample-copy p { margin: 0; max-width: 560px; color: rgba(7,10,16,.68); font-size: 1rem; line-height: 1.65; }
 .free-sample-banner .button { white-space: nowrap; }
+.pricing-top-sample { width: min(1344px, calc(100% - 48px)); margin: 140px auto 0; }
+.pricing-top-sample + .page-intro { padding-top: 90px; }
+.sample-availability { width: max-content; margin-top: 1.25rem; padding: .7rem .85rem; display: flex; align-items: center; gap: 1rem; border: 1px solid rgba(7,10,16,.2); border-radius: 999px; font-family: var(--mono); font-size: .58rem; letter-spacing: .08em; text-transform: uppercase; }
+.sample-availability strong { padding: .35rem .55rem; color: var(--paper); background: var(--ink); border-radius: 999px; font-weight: 500; }
 .founding-offer { margin-bottom: 24px; padding: clamp(1.5rem, 3vw, 3rem); display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: clamp(1.5rem, 4vw, 4rem); align-items: center; color: var(--ink); background: var(--coral); border: 1px solid rgba(244,239,230,.22); border-radius: 24px; box-shadow: 0 30px 80px rgba(0,0,0,.22); }
 .offer-discount { width: clamp(130px, 14vw, 190px); aspect-ratio: 1; display: grid; place-content: center; text-align: center; color: var(--paper); background: var(--ink); border-radius: 50%; transform: rotate(-5deg); }
 .offer-discount strong { font-family: var(--display); font-size: clamp(2.8rem, 5vw, 5rem); line-height: .75; letter-spacing: -.08em; }
@@ -743,6 +747,25 @@ main > .section + .section { border-top: 1px solid rgba(216,200,168,.14); }
 .care-price small { font-family: var(--mono); font-size: .58rem; letter-spacing: .1em; text-transform: uppercase; }
 .care-plan .outcome-list { grid-column: auto; }
 .care-plan .button { grid-column: 1 / -1; width: max-content; justify-self: end; }
+.deals-section { margin-top: clamp(70px, 9vw, 130px); }
+.deals-heading { display: grid; grid-template-columns: .7fr 1.4fr; gap: 1.5rem 2rem; align-items: end; margin-bottom: 3rem; }
+.deals-heading h2 { margin: 0; font-family: var(--display); font-size: clamp(3rem, 5.5vw, 6.5rem); line-height: .86; letter-spacing: -.075em; }
+.deals-heading p { grid-column: 2; max-width: 700px; margin: 0; color: var(--paper-dim); font-size: .82rem; line-height: 1.65; }
+.deals-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: 24px; overflow: hidden; }
+.deal-card { min-height: 350px; padding: clamp(1.5rem, 2.5vw, 2.25rem); border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); background: rgba(255,255,255,.012); }
+.deal-card:nth-child(3n) { border-right: 0; }
+.deal-card > span { color: var(--coral); font-family: var(--mono); font-size: .58rem; letter-spacing: .1em; text-transform: uppercase; }
+.deal-card > strong { display: block; margin-top: 2.5rem; font-family: var(--display); font-size: clamp(2rem, 3.4vw, 4rem); line-height: .9; letter-spacing: -.065em; }
+.deal-card h3 { margin: 1.5rem 0 .85rem; font-family: var(--display); font-size: 1.3rem; line-height: 1.1; letter-spacing: -.035em; }
+.deal-card p, .deal-card li { color: var(--paper-dim); font-size: .84rem; line-height: 1.65; }
+.deal-card p { margin: 0; }
+.deal-card ul { margin: 0; padding-left: 1.1rem; }
+.deal-value { color: var(--ink); background: var(--mint); }
+.deal-value > span, .deal-value p, .deal-value li { color: rgba(7,10,16,.72); }
+.deal-partner { grid-column: 1 / -1; min-height: 280px; border-right: 0; border-bottom: 0; background: radial-gradient(circle at 88% 20%, rgba(65,105,216,.2), transparent 28%), rgba(255,255,255,.018); }
+.deal-partner > strong { font-size: clamp(2.6rem, 5vw, 6rem); }
+.deal-partner p { max-width: 780px; }
+.deals-action { width: max-content; margin: 2rem 0 0 auto; }
 .roi-panel { margin-top: 24px; padding: clamp(2rem, 4vw, 4rem); border: 1px solid rgba(65,105,216,.4); border-radius: 28px; background: radial-gradient(circle at 90% 10%, rgba(65,105,216,.22), transparent 36%), #0d111b; }
 .roi-panel h2 { max-width: 900px; margin: .8rem 0 2.5rem; font-family: var(--display); font-size: clamp(2.5rem, 5vw, 5.8rem); line-height: .9; letter-spacing: -.07em; }
 .roi-math { display: grid; grid-template-columns: auto 1fr auto auto 1fr auto auto 1fr; gap: .8rem 1.2rem; align-items: baseline; padding-block: 1.5rem; border-block: 1px solid var(--line); }
@@ -884,6 +907,12 @@ main > .section + .section { border-top: 1px solid rgba(216,200,168,.14); }
   .founding-offer { grid-template-columns: auto 1fr; }
   .founding-offer .button { grid-column: 1 / -1; width: max-content; }
   .pricing-tracks, .terms-heading { grid-template-columns: 1fr; }
+  .deals-heading { grid-template-columns: 1fr; }
+  .deals-heading p { grid-column: auto; }
+  .deals-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .deal-card, .deal-card:nth-child(3n) { border-right: 1px solid var(--line); }
+  .deal-card:nth-child(even) { border-right: 0; }
+  .deal-partner { grid-column: 1 / -1; border-right: 0; }
   .care-plan { grid-template-columns: 1fr 1fr; }
   .care-plan .outcome-list { grid-column: 1 / -1; }
   .roi-math { grid-template-columns: auto 1fr; }
@@ -953,6 +982,9 @@ main > .section + .section { border-top: 1px solid rgba(216,200,168,.14); }
   .case-card:nth-child(even) { margin-top: 0; }
   .pricing-note { grid-template-columns: 1fr; }
   .free-sample-banner .button { width: 100%; white-space: normal; }
+  .pricing-top-sample { width: calc(100% - 32px); margin-top: 96px; }
+  .pricing-top-sample + .page-intro { padding-top: 64px; }
+  .sample-availability { width: 100%; align-items: flex-start; flex-direction: column; border-radius: 16px; }
   .founding-offer { grid-template-columns: 1fr; padding: 1.5rem; }
   .offer-discount { width: 126px; }
   .founding-offer .button { grid-column: auto; width: 100%; white-space: normal; }
@@ -969,6 +1001,10 @@ main > .section + .section { border-top: 1px solid rgba(216,200,168,.14); }
   .care-price { text-align: left; }
   .care-plan .outcome-list, .care-plan .button { grid-column: auto; }
   .care-plan .button { width: 100%; justify-self: stretch; }
+  .deals-grid { grid-template-columns: 1fr; }
+  .deal-card, .deal-card:nth-child(3n), .deal-card:nth-child(even) { min-height: 0; border-right: 0; border-bottom: 1px solid var(--line); }
+  .deal-partner { grid-column: auto; border-bottom: 0; }
+  .deals-action { width: 100%; margin-left: 0; }
   .roi-panel { padding: 2rem 1.4rem; }
   .roi-math { grid-template-columns: auto 1fr; }
   .roi-math b { display: none; }
