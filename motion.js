@@ -57,7 +57,7 @@ if (reducedMotion) {
       [".section-map", ".map-card"],
       [".work-list", ".work-row"],
       [".service-grid", ".service"],
-      [".pricing-grid", ".price-card"],
+      [".pricing-tracks", ".pricing-track"],
       [".team-grid", ".team-card"],
       [".principle-list", "article"],
       [".contact-details", ":scope > div"]
