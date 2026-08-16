@@ -1579,7 +1579,8 @@ function initAmbientWebGL() {
     "work.html": [0xc9784a, 0x4169d8, 0xd8c8a8],
     "pricing.html": [0xd8c8a8, 0xaebbd2, 0x4169d8],
     "about.html": [0xaebbd2, 0xc9784a, 0xd8c8a8],
-    "contact.html": [0xd89a63, 0xd8c8a8, 0x4169d8]
+    "contact.html": [0xd89a63, 0xd8c8a8, 0x4169d8],
+    "spec-sites.html": [0x507b5a, 0xc9784a, 0xd8c8a8]
   };
   const palette = pagePalettes[pageName] || pagePalettes["index.html"];
 

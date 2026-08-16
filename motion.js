@@ -1,6 +1,23 @@
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const revealElements = [...document.querySelectorAll(".reveal")];
 const curtainHero = document.querySelector("[data-curtain-hero]");
+let lenis;
+
+if (!reducedMotion) {
+  try {
+    const { default: Lenis } = await import("https://cdn.jsdelivr.net/npm/lenis@1.3.26/+esm");
+    lenis = new Lenis({
+      autoRaf: true,
+      duration: 1.05,
+      smoothWheel: true,
+      syncTouch: false,
+      anchors: { offset: -92 }
+    });
+    document.documentElement.classList.add("lenis-ready");
+  } catch (error) {
+    // Native scrolling remains available if the enhancement cannot load.
+  }
+}
 
 const setCurtainProgress = (progress) => {
   if (!curtainHero) return;
@@ -55,6 +72,7 @@ if (reducedMotion) {
 
     const staggerGroups = [
       [".section-map", ".map-card"],
+      [".home-spec-grid", ".home-spec-card"],
       [".work-list", ".work-row"],
       [".service-grid", ".service"],
       [".pricing-tracks", ".pricing-track"],
@@ -123,6 +141,85 @@ if (reducedMotion) {
         delay: (index) => .08 + index * .1,
         ease: [.22, 1, .36, 1]
       });
+    }
+
+    try {
+      const [{ gsap }, { ScrollTrigger }] = await Promise.all([
+        import("https://cdn.jsdelivr.net/npm/gsap@3.15.0/+esm"),
+        import("https://cdn.jsdelivr.net/npm/gsap@3.15.0/ScrollTrigger/+esm")
+      ]);
+      gsap.registerPlugin(ScrollTrigger);
+      lenis?.on("scroll", ScrollTrigger.update);
+
+      gsap.utils.toArray(".home-spec-card .mini-browser").forEach((browser, index) => {
+        gsap.fromTo(browser, {
+          yPercent: index ? 8 : 13,
+          rotate: index ? 1.2 : -1.2
+        }, {
+          yPercent: index ? -5 : -8,
+          rotate: 0,
+          ease: "none",
+          scrollTrigger: {
+            trigger: browser.closest(".home-spec-card"),
+            start: "top bottom",
+            end: "bottom top",
+            scrub: .8
+          }
+        });
+      });
+
+      const specHero = document.querySelector("[data-spec-hero]");
+      if (specHero) {
+        gsap.timeline({
+          scrollTrigger: {
+            trigger: specHero,
+            start: "top top",
+            end: "bottom top",
+            scrub: 1
+          }
+        })
+          .to(".spec-hero h1", { yPercent: -16, scale: .94, transformOrigin: "left bottom", ease: "none" }, 0)
+          .to(".spec-hero-bottom", { yPercent: -25, opacity: .35, ease: "none" }, 0)
+          .to(".spec-orbit-one", { x: -150, y: 90, rotate: -12, ease: "none" }, 0)
+          .to(".spec-orbit-two", { x: 190, y: -55, rotate: 10, ease: "none" }, 0);
+      }
+
+      gsap.matchMedia().add("(min-width: 901px)", () => {
+        gsap.utils.toArray("[data-spec-case]").forEach((specCase, index) => {
+          const browser = specCase.querySelector(".spec-browser");
+          const copy = specCase.querySelector(".spec-case-copy");
+          gsap.fromTo(browser, {
+            yPercent: 9,
+            rotate: index ? 1.4 : -1.4,
+            scale: .94
+          }, {
+            yPercent: -7,
+            rotate: 0,
+            scale: 1,
+            ease: "none",
+            scrollTrigger: {
+              trigger: specCase,
+              start: "top bottom",
+              end: "bottom top",
+              scrub: 1
+            }
+          });
+          gsap.fromTo(copy, { y: 70 }, {
+            y: -35,
+            ease: "none",
+            scrollTrigger: {
+              trigger: specCase,
+              start: "top 80%",
+              end: "bottom 25%",
+              scrub: 1
+            }
+          });
+        });
+      });
+
+      ScrollTrigger.refresh();
+    } catch (error) {
+      // Framer Motion and native sticky positioning provide the fallback.
     }
   } catch (error) {
     showStatic();
