@@ -7,7 +7,7 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&family=Syne:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script><script src="script.js" defer></script><script type="module" src="motion.js"></script>
+  <link rel="stylesheet" href="styles.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script><script src="pricing-data.js" defer></script><script src="script.js" defer></script><script type="module" src="motion.js"></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -22,7 +22,7 @@
         <div class="field"><label for="name">Your name *</label><input id="name" name="name" type="text" autocomplete="name" maxlength="100" required placeholder="Ada Lovelace"><span class="field-error"></span></div>
         <div class="field"><label for="email">Email address *</label><input id="email" name="email" type="email" autocomplete="email" maxlength="254" required placeholder="ada@company.com"><span class="field-error"></span></div>
         <div class="field"><label for="company">Company</label><input id="company" name="company" type="text" autocomplete="organization" maxlength="150" placeholder="Your company"><span class="field-error"></span></div>
-        <div class="field"><label for="budget">Project budget *</label><select id="budget" name="budget" required><option value="">Choose a package</option><option value="Founding client offer — 40% off">Founding client offer / 40% off</option><option value="Promotions and partnership enquiry">Promotions / Partnership enquiry</option><option value="INR 14,999">&#8377;14,999 / Foundation</option><option value="INR 27,999">&#8377;27,999 / Signature</option><option value="INR 59,999">&#8377;59,999 / Worldbuild</option><option value="INR 999–2,499 / month">&#8377;999–2,499 / Monthly care plan</option><option value="Custom pricing">Custom scope / Price on request</option><option value="Free — sample homepage">Free sample homepage</option></select><span class="field-error"></span></div>
+        <div class="field"><label for="budget">Project package *</label><select id="budget" name="budget" required><option value="">Choose a package</option><option value="Custom pricing">Custom scope / Price on request</option></select><span class="field-error"></span></div>
         <div class="field full"><label for="message">What would you like to build? *</label><textarea id="message" name="message" maxlength="5000" required placeholder="Tell us about the idea, the audience, and what success looks like."></textarea><span class="field-error"></span></div>
         <div class="form-actions"><button class="button" type="submit">Send project brief <span class="button-arrow">&#8599;</span></button><span class="form-status" role="status" aria-live="polite"></span></div>
       </form>

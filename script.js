@@ -36,11 +36,40 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   const form = document.querySelector("[data-contact-form]");
-  const requestedPackage = new URLSearchParams(window.location.search).get("package");
-  if (form && requestedPackage) {
-    const packageBudgets = { foundation: "INR 14,999", signature: "INR 27,999", worldbuild: "INR 59,999", "care-plan": "INR 999–2,499 / month", "founding-client": "Founding client offer — 40% off", promotions: "Promotions and partnership enquiry", "free-sample": "Free — sample homepage" };
+  const contactParams = new URLSearchParams(window.location.search);
+  const requestedPackage = contactParams.get("package");
+  if (form) {
     const budget = form.querySelector("[name='budget']");
-    if (packageBudgets[requestedPackage]) budget.value = packageBudgets[requestedPackage];
+    const pricing = window.webloPricingData;
+    const packageBudgets = { promotions: "Promotions and partnership enquiry", "free-sample": "Free — sample homepage" };
+
+    if (pricing) {
+      packageBudgets["founding-client"] = `Founding client offer — ${pricing.foundingOffer.discountPercent}% off`;
+      const format = new Intl.NumberFormat(pricing.locale);
+      const packages = pricing.tracks.hospitality.packages;
+      const bundleKeys = ["none", "care", "carePro"];
+      const optionGroups = Object.entries(packages).map(([packageKey, item]) => {
+        const options = bundleKeys.map((bundle) => {
+          const care = pricing.bundleOptions[bundle];
+          const oneTime = bundle === "none" ? item.basePrice : item.bundlePrices[bundle];
+          const monthly = care.monthlyPrice;
+          const slug = bundle === "none" ? packageKey : `${packageKey}-${bundle === "carePro" ? "care-pro" : "care"}`;
+          const value = `${item.name}${bundle === "none" ? "" : ` + ${care.shortLabel}`} — INR ${format.format(oneTime)}${monthly ? ` + INR ${format.format(monthly)}/month` : ""}`;
+          packageBudgets[slug] = value;
+          return `<option value="${value}">${care.shortLabel} / ₹${format.format(oneTime)}${monthly ? ` + ₹${format.format(monthly)}/month` : ""}</option>`;
+        }).join("");
+        return `<optgroup label="${item.name}">${options}</optgroup>`;
+      }).join("");
+      const careOptions = Object.entries(pricing.carePlans).map(([key, plan]) => {
+        const slug = key === "carePro" ? "care-pro" : "care-plan";
+        const value = `${plan.name} — INR ${format.format(plan.price)}/month`;
+        packageBudgets[slug] = value;
+        return `<option value="${value}">${plan.name} only / ₹${format.format(plan.price)}/month</option>`;
+      }).join("");
+      budget.innerHTML = `<option value="">Choose a package</option><option value="${packageBudgets["founding-client"]}">Founding client offer / ${pricing.foundingOffer.discountPercent}% off</option><option value="${packageBudgets.promotions}">Promotions / Partnership enquiry</option>${optionGroups}${careOptions}<option value="Custom pricing">Custom scope / Price on request</option><option value="${packageBudgets["free-sample"]}">Free sample homepage</option>`;
+    }
+
+    if (requestedPackage && packageBudgets[requestedPackage]) budget.value = packageBudgets[requestedPackage];
   }
   form?.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -64,12 +93,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const data = new FormData(form);
     const company = String(data.get("company") || "").trim();
+    const pricingSelection = {
+      track: contactParams.get("track") || "not selected",
+      package: requestedPackage || "not selected",
+      care_plan: contactParams.get("care") || "none",
+      base_price: contactParams.get("base_price") || "not supplied",
+      website_price: contactParams.get("website_price") || "not supplied"
+    };
+    const commercialContext = {
+      monthly_price: contactParams.get("monthly_price") || "0",
+      promotion: contactParams.get("promotion") || "none"
+    };
     const payload = {
       userName: String(data.get("name") || "").trim(),
       userEmail: String(data.get("email") || "").trim(),
       userChoices: [
         ...(company ? [{ company }] : []),
-        { budget: String(data.get("budget") || "").trim() }
+        { budget: String(data.get("budget") || "").trim() },
+        pricingSelection,
+        commercialContext
       ],
       userAnswers: [String(data.get("message") || "").trim()],
       website: String(data.get("website") || ""),
@@ -77,6 +119,16 @@ document.addEventListener("DOMContentLoaded", () => {
         ? crypto.randomUUID()
         : `${Date.now()}-${Math.random().toString(36).slice(2)}`
     };
+    const contactAnalytics = {
+      event: "contact_started",
+      track: pricingSelection.track,
+      website_package: pricingSelection.package,
+      care_plan: pricingSelection.care_plan,
+      displayed_one_time_price: pricingSelection.website_price,
+      displayed_monthly_price: commercialContext.monthly_price
+    };
+    window.dispatchEvent(new CustomEvent("weblo:analytics", { detail: contactAnalytics }));
+    if (Array.isArray(window.dataLayer)) window.dataLayer.push(contactAnalytics);
     status.textContent = "Sending your project brief...";
     submitButton.disabled = true;
 
