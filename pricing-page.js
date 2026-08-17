@@ -73,7 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <p>${plan.audience}</p>
         <strong class="care-allowance">${plan.allowance}</strong>
         <ul>${plan.features.map((feature) => `<li>${feature}</li>`).join("")}<li>${plan.support}</li></ul>
-        <a class="button ${isPro ? "dark" : "ghost"}" data-care-cta="${slug}" href="contact.html?package=${packageSlug}&care=${slug}&monthly_price=${plan.price}">Choose ${plan.name}</a>
+        <a class="button${isPro ? "" : " dark"}" data-care-cta="${slug}" href="contact.html?package=${packageSlug}&care=${slug}&monthly_price=${plan.price}">Choose ${plan.name}</a>
       </article>`;
     }).join("");
   };
